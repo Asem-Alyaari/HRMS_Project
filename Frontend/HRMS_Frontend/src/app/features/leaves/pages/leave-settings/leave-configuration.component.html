@@ -1,0 +1,165 @@
+<div class="card p-6 bg-white dark:bg-zinc-900 rounded-3xl shadow-sm border border-slate-100 dark:border-zinc-800"
+    dir="rtl">
+    <p-toast></p-toast>
+    <p-confirmDialog></p-confirmDialog>
+
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+        <div class="flex items-center gap-3">
+            <div
+                class="w-12 h-12 rounded-2xl bg-purple-50 dark:bg-purple-900/20 flex items-center justify-center text-purple-600 dark:text-purple-400">
+                <i class="pi pi-cog text-xl"></i>
+            </div>
+            <div>
+                <h1 class="text-xl font-bold text-slate-800 dark:text-zinc-100">إعدادات الإجازات</h1>
+                <p class="text-slate-500 dark:text-zinc-400 text-xs mt-1">تكوين أنواع الإجازات وقواعد النظام والعطل
+                    الرسمية</p>
+            </div>
+        </div>
+    </div>
+
+    <p-tabs value="0">
+        <p-tablist class="flex border-b border-slate-100 dark:border-zinc-800 px-2">
+            <p-tab value="0" class="flex-1 md:flex-none">
+                <div class="flex items-center gap-2 py-3 px-4 text-sm font-bold cursor-pointer">
+                    <i class="pi pi-list"></i> أنواع الإجازات
+                </div>
+            </p-tab>
+            <p-tab value="1" class="flex-1 md:flex-none">
+                <div class="flex items-center gap-2 py-3 px-4 text-sm font-bold cursor-pointer">
+                    <i class="pi pi-sliders-h"></i> قواعد النظام
+                </div>
+            </p-tab>
+            <p-tab value="2" class="flex-1 md:flex-none">
+                <div class="flex items-center gap-2 py-3 px-4 text-sm font-bold cursor-pointer">
+                    <i class="pi pi-calendar-plus"></i> العطل الرسمية
+                </div>
+            </p-tab>
+        </p-tablist>
+
+        <p-tabpanels styleClass="!bg-transparent !p-0">
+            <!-- Tab 1: Leave Types -->
+            <p-tabpanel value="0">
+                <p-toolbar styleClass="mb-4 bg-transparent border-none p-0 mt-4">
+                    <ng-template pTemplate="left">
+                        <button pButton label="إضافة نوع جديد" icon="pi pi-plus"
+                            class="p-button-success p-button-sm rounded-xl" (click)="openLeaveTypeForm()"></button>
+                    </ng-template>
+                    <ng-template pTemplate="right">
+                        <button pButton icon="pi pi-refresh" (click)="loadLeaveTypes()"
+                            class="p-button-outlined p-button-rounded p-button-secondary p-button-sm"></button>
+                    </ng-template>
+                </p-toolbar>
+
+                <p-table [value]="leaveTypes()" [loading]="loadingLeaveTypes()" responsiveLayout="scroll"
+                    styleClass="p-datatable-sm">
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th>النوع (Ar)</th>
+                            <th>النوع (En)</th>
+                            <th>الأيام الافتراضية</th>
+                            <th>خصم من الرصيد</th>
+                            <th>يتطلب مرفق</th>
+                            <th class="text-center">إجراءات</th>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-type>
+                        <tr>
+                            <td class="font-bold text-slate-700 dark:text-zinc-200">{{type.leaveTypeNameAr}}</td>
+                            <td>{{type.nameEn}}</td>
+                            <td>{{type.defaultDays}}</td>
+                            <td>
+                                <i class="pi"
+                                    [ngClass]="{'pi-check-circle text-green-500': type.isDeductible === 1, 'pi-times-circle text-red-400': type.isDeductible !== 1}"></i>
+                            </td>
+                            <td>
+                                <i class="pi"
+                                    [ngClass]="{'pi-check-circle text-green-500': type.requiresAttachment === 1, 'pi-times-circle text-red-400': type.requiresAttachment !== 1}"></i>
+                            </td>
+                            <td class="text-center">
+                                <button pButton icon="pi pi-pencil"
+                                    class="p-button-text p-button-rounded p-button-secondary"
+                                    (click)="openLeaveTypeForm(type)"></button>
+                            </td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </p-tabpanel>
+
+            <!-- Tab 2: System Settings -->
+            <p-tabpanel value="1">
+                <p-table [value]="settings()" dataKey="settingId" editMode="row" [loading]="loadingSettings()"
+                    styleClass="p-datatable-sm mt-4">
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th style="width: 30%">الإعداد</th>
+                            <th style="width: 40%">الوصف</th>
+                            <th style="width: 20%">القيمة</th>
+                            <th style="width: 10%" class="text-center">تعديل</th>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-setting let-editing="editing" let-ri="rowIndex">
+                        <tr [pEditableRow]="setting">
+                            <td class="font-mono text-sm">{{setting.settingKey}}</td>
+                            <td class="text-slate-500 text-xs">{{setting.description}}</td>
+                            <td>
+                                <p-cellEditor>
+                                    <ng-template pTemplate="input">
+                                        <input pInputText type="text" [(ngModel)]="setting.settingValue"
+                                            class="w-full p-inputtext-sm">
+                                    </ng-template>
+                                    <ng-template pTemplate="output">
+                                        <span class="font-bold text-blue-600">{{setting.settingValue}}</span>
+                                    </ng-template>
+                                </p-cellEditor>
+                            </td>
+                            <td class="text-center">
+                                <div class="flex gap-2 justify-center">
+                                    <button *ngIf="!editing" pInitEditableRow pButton icon="pi pi-pencil"
+                                        class="p-button-rounded p-button-text p-button-secondary"
+                                        (click)="onRowEditInit(setting)"></button>
+                                    <button *ngIf="editing" pSaveEditableRow pButton icon="pi pi-check"
+                                        class="p-button-rounded p-button-text p-button-success"
+                                        (click)="onRowEditSave(setting)"></button>
+                                    <button *ngIf="editing" pCancelEditableRow pButton icon="pi pi-times"
+                                        class="p-button-rounded p-button-text p-button-danger"
+                                        (click)="onRowEditCancel(setting, ri)"></button>
+                                </div>
+                            </td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </p-tabpanel>
+
+            <!-- Tab 3: Public Holidays -->
+            <p-tabpanel value="2">
+                <div *ngIf="holidays().length === 0" class="p-8 text-center text-slate-400 mt-4">
+                    <i class="pi pi-calendar-clock text-4xl mb-3"></i>
+                    <p>إدارة العطل الرسمية السنوية</p>
+                    <button pButton label="تحميل البيانات" icon="pi pi-refresh" class="p-button-text mt-4"
+                        (click)="loadHolidays()"></button>
+                </div>
+
+                <p-table *ngIf="holidays().length > 0" [value]="holidays()" styleClass="p-datatable-sm mt-4">
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th>العطلة</th>
+                            <th>التاريخ</th>
+                            <th>سنوية متكررة</th>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-holiday>
+                        <tr>
+                            <td class="font-bold">{{holiday.holidayNameAr}}</td>
+                            <td class="font-mono text-sm">{{holiday.holidayDate | date:'yyyy/MM/dd'}}</td>
+                            <td>
+                                <i class="pi"
+                                    [ngClass]="{'pi-check text-green-500': holiday.isRecurring, 'pi-times text-red-400': !holiday.isRecurring}"></i>
+                            </td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </p-tabpanel>
+        </p-tabpanels>
+    </p-tabs>
+</div>
