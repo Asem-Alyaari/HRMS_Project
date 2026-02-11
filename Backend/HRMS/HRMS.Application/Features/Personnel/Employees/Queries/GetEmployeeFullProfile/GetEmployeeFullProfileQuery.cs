@@ -3,6 +3,8 @@ using HRMS.Application.Features.Personnel.Employees.DTOs;
 using HRMS.Application.Interfaces;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using HRMS.Application.DTOs.Performance;
+using HRMS.Application.DTOs.Payroll;
 
 namespace HRMS.Application.Features.Personnel.Employees.Queries.GetEmployeeFullProfile;
 
@@ -202,6 +204,51 @@ public class GetEmployeeFullProfileQueryHandler : IRequestHandler<GetEmployeeFul
                 ExpiryDate = doc.ExpiryDate
             }).ToList()
         };
+
+        // Fetch Violations separately since navigation property might be missing or avoid huge Includes
+        var violations = await _context.EmployeeViolations
+            .AsNoTracking()
+            .Include(v => v.ViolationType)
+            .Include(v => v.Action)
+            .Where(v => v.EmployeeId == request.EmployeeId)
+            .OrderByDescending(v => v.ViolationDate)
+            .ToListAsync(cancellationToken);
+
+        profile.Violations = violations.Select(v => new EmployeeViolationDto
+        {
+            ViolationId = v.ViolationId,
+            EmployeeId = v.EmployeeId,
+            EmployeeName = employee.FullNameAr,
+            ViolationTypeId = v.ViolationTypeId,
+            ViolationTypeNameAr = v.ViolationType.ViolationNameAr,
+            ActionId = v.ActionId ?? 0,
+            ActionNameAr = v.Action?.ActionNameAr ?? "",
+            DeductionDays = v.Action != null ? (int)v.Action.DeductionDays : 0,
+            ViolationDate = v.ViolationDate,
+            Description = v.Description,
+            IsExecuted = v.IsExecuted == 1
+        }).ToList();
+
+        // Fetch Loans separately
+        var loans = await _context.Loans
+            .AsNoTracking()
+            .Include(l => l.Installments)
+            .Where(l => l.EmployeeId == request.EmployeeId)
+            .OrderByDescending(l => l.RequestDate)
+            .ToListAsync(cancellationToken);
+
+        profile.Loans = loans.Select(l => new LoanDto
+        {
+            LoanId = l.LoanId,
+            EmployeeId = l.EmployeeId,
+            TotalAmount = l.LoanAmount,
+            InstallmentCount = l.InstallmentCount,
+            MonthlyInstallment = l.InstallmentCount > 0 ? l.LoanAmount / l.InstallmentCount : 0,
+            StartDate = l.RequestDate,
+            Reason = null, // Entity has no Reason field
+            Status = l.Status ?? "PENDING",
+            Balance = l.LoanAmount - l.Installments.Where(i => i.IsPaid == 1).Sum(i => i.Amount)
+        }).ToList();
 
         return profile;
     }

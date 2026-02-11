@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, signal } from '@angular/core';
+import { Component, Input, Output, EventEmitter, signal, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
@@ -7,13 +7,14 @@ import { ButtonModule } from 'primeng/button';
 import { InputMaskModule } from 'primeng/inputmask';
 import { SelectModule } from 'primeng/select';
 import { CreateEmployeeDto } from '../../../models/create-employee.dto';
+import { LookupService } from '../../../../../core/services/lookup.service';
 
 @Component({
   selector: 'app-personal-info-step',
   standalone: true,
   imports: [
-    CommonModule, 
-    ReactiveFormsModule, 
+    CommonModule,
+    ReactiveFormsModule,
     FormsModule,
     InputTextModule,
     InputTextModule,
@@ -25,21 +26,33 @@ import { CreateEmployeeDto } from '../../../models/create-employee.dto';
   templateUrl: './personal-info-step.component.html',
   styleUrls: ['./personal-info-step.component.scss']
 })
-export class PersonalInfoStepComponent {
+export class PersonalInfoStepComponent implements OnInit {
   @Input() data!: CreateEmployeeDto;
   @Output() dataChange = new EventEmitter<Partial<CreateEmployeeDto>>();
   @Output() next = new EventEmitter<void>();
+
+  private lookupService = inject(LookupService);
 
   genders = [
     { label: 'ذكر', value: 'Male' },
     { label: 'أنثى', value: 'Female' }
   ];
 
-  // Lookup data should ideally come from a service (Nationalities etc.)
-  nationalities = [
-    { label: 'يمني', value: 1 },
-    { label: 'سعودي', value: 2 }
-  ];
+  // Load from API
+  nationalities = signal<{ label: string; value: number }[]>([]);
+
+  ngOnInit() {
+    this.loadNationalities();
+  }
+
+  loadNationalities() {
+    this.lookupService.getNationalities().subscribe({
+      next: (countries) => {
+        this.nationalities.set(countries);
+      },
+      error: (err) => console.error('Error loading nationalities:', err)
+    });
+  }
 
   onChange() {
     this.dataChange.emit(this.data);
@@ -49,7 +62,7 @@ export class PersonalInfoStepComponent {
     // Validation logic can go here
     if (!this.data.firstNameAr || !this.data.lastNameAr || !this.data.mobile) {
       // Simple validation for now
-      return; 
+      return;
     }
     this.next.emit();
   }

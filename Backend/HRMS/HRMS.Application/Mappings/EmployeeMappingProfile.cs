@@ -13,7 +13,12 @@ namespace HRMS.Application.Mappings
             // 1. Employee Core
             // ----------------------------------------------------------------------------------
             CreateMap<HRMS.Application.DTOs.Personnel.CreateEmployeeDto, Employee>()
-                .ForMember(dest => dest.NationalityId, opt => opt.MapFrom(src => src.NationalityId));
+                .ForMember(dest => dest.NationalityId, opt => opt.MapFrom(src => src.NationalityId))
+                .ForMember(dest => dest.Gender, opt => opt.MapFrom(src => 
+                    src.Gender.ToUpper().StartsWith("M") ? "M" : 
+                    src.Gender.ToUpper().StartsWith("F") ? "F" : "M"))
+                .ForMember(dest => dest.Email, opt => opt.MapFrom(src => 
+                    string.IsNullOrWhiteSpace(src.Email) ? null : src.Email));
             
             // New Basic Mapping
             CreateMap<CreateBasicEmployeeDto, Employee>()

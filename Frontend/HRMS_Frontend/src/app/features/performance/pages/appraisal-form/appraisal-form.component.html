@@ -1,0 +1,69 @@
+<div class="card p-6 bg-white dark:bg-zinc-900 rounded-3xl shadow-sm border border-slate-100 dark:border-zinc-800"
+    dir="rtl">
+    <p-toast></p-toast>
+
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-xl font-bold text-slate-800 dark:text-zinc-100">نموذج تقييم أداء موظف</h1>
+            <p class="text-slate-500 dark:text-zinc-400 text-xs mt-1">إدخال درجات التقييم بناءً على مؤشرات الأداء
+                المعتمدة</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div class="field">
+            <label class="block text-sm font-medium mb-1">الموظف</label>
+            <p-select [options]="employees()" [(ngModel)]="selectedEmployeeId" optionLabel="fullNameAr"
+                optionValue="employeeId" placeholder="اختر الموظف" [filter]="true" filterBy="fullNameAr"
+                class="w-full"></p-select>
+        </div>
+        <div class="field">
+            <label class="block text-sm font-medium mb-1">دورة التقييم</label>
+            <p-select [options]="cycles()" [(ngModel)]="selectedCycleId" optionLabel="cycleNameAr" optionValue="cycleId"
+                placeholder="اختر دورة التقييم" class="w-full"></p-select>
+        </div>
+    </div>
+
+    <div class="mb-6">
+        <h3 class="text-lg font-bold text-slate-700 dark:text-zinc-200 mb-4 border-b pb-2">بنود التقييم</h3>
+
+        <p-table [value]="appraisalDetails()" styleClass="p-datatable-sm p-datatable-gridlines">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>المؤشر</th>
+                    <th class="w-32 text-center">الدرجة (1-100)</th>
+                    <th>ملاحظات المقيم</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-detail>
+                <tr>
+                    <td class="font-medium">{{detail.kpiNameAr}}</td>
+                    <td class="text-center">
+                        <p-inputnumber [(ngModel)]="detail.score" [min]="0" [max]="100" [showButtons]="true"
+                            buttonLayout="horizontal" inputStyleClass="text-center w-full"
+                            decrementButtonClass="p-button-secondary" incrementButtonClass="p-button-secondary"
+                            incrementButtonIcon="pi pi-plus" decrementButtonIcon="pi pi-minus"></p-inputnumber>
+                    </td>
+                    <td>
+                        <input type="text" pInputText [(ngModel)]="detail.comments" placeholder="أضف ملاحظات..."
+                            class="w-full" />
+                    </td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="footer">
+                <tr>
+                    <td class="text-left font-bold py-4">الإجمالي الكلي:</td>
+                    <td class="text-center font-bold text-xl text-blue-600">{{calculateTotalScore()}}</td>
+                    <td></td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+
+    <div class="flex justify-end gap-3 mt-8">
+        <p-button label="إلغاء" icon="pi pi-times" styleClass="p-button-text"
+            (onClick)="router.navigate(['/performance/violations'])"></p-button>
+        <p-button label="إرسال التقييم" icon="pi pi-check" styleClass="p-button-primary" [loading]="loading()"
+            (onClick)="submit()"></p-button>
+    </div>
+</div>

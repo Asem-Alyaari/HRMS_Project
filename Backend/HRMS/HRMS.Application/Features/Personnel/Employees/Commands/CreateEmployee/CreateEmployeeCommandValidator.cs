@@ -12,17 +12,18 @@ public class CreateEmployeeCommandValidator : AbstractValidator<CreateEmployeeCo
     {
         _context = context;
 
-        RuleFor(x => x.Data.EmployeeNumber)
-            .NotEmpty().WithMessage("الرقم الوظيفي مطلوب")
-            .MustAsync(BeUniqueEmployeeNumber).WithMessage("الرقم الوظيفي مستخدم بالفعل");
+        // EmployeeNumber is auto-generated in the handler, no validation needed
+
 
         RuleFor(x => x.Data.FirstNameAr).NotEmpty().WithMessage("الاسم الأول مطلوب");
         RuleFor(x => x.Data.LastNameAr).NotEmpty().WithMessage("اسم العائلة مطلوب");
-        RuleFor(x => x.Data.Email).EmailAddress().WithMessage("البريد الإلكتروني غير صحيح");
-        
+        RuleFor(x => x.Data.Email)
+            .EmailAddress().WithMessage("البريد الإلكتروني غير صحيح")
+            .When(x => !string.IsNullOrEmpty(x.Data.Email));
+
         RuleFor(x => x.Data.DepartmentId)
             .GreaterThan(0).WithMessage("يجب اختيار القسم");
-        
+
         RuleFor(x => x.Data.JobId)
             .GreaterThan(0).WithMessage("يجب اختيار الوظيفة");
 
@@ -32,7 +33,7 @@ public class CreateEmployeeCommandValidator : AbstractValidator<CreateEmployeeCo
         // --- New Professional Validations ---
         RuleFor(x => x.Data.NationalId)
             .NotEmpty().WithMessage("رقم الهوية مطلوب")
-            .Length(10).WithMessage("رقم الهوية يجب أن يكون 10 أرقام"); // افتراض قياسي
+            .Length(7, 15).WithMessage("رقم الهوية يجب أن يكون بين 7 و 15 رقماً");
 
         RuleFor(x => x.Data.LicenseExpiryDate)
             .GreaterThan(DateTime.Today)
@@ -48,10 +49,5 @@ public class CreateEmployeeCommandValidator : AbstractValidator<CreateEmployeeCo
         RuleForEach(x => x.Data.Qualifications).SetValidator(new EmployeeQualificationValidator());
         RuleForEach(x => x.Data.Experiences).SetValidator(new EmployeeExperienceValidator());
         RuleForEach(x => x.Data.EmergencyContacts).SetValidator(new EmergencyContactValidator());
-    }
-
-    private async Task<bool> BeUniqueEmployeeNumber(string employeeNumber, CancellationToken token)
-    {
-        return !await _context.Employees.AnyAsync(e => e.EmployeeNumber == employeeNumber, token);
     }
 }

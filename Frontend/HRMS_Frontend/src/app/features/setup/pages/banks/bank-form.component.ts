@@ -10,10 +10,10 @@ import { SetupService } from '../../services/setup.service';
 import { MessageService } from 'primeng/api';
 
 @Component({
-  selector: 'app-bank-form',
-  standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, InputTextModule, ButtonModule, FloatLabelModule, CheckboxModule],
-  template: `
+    selector: 'app-bank-form',
+    standalone: true,
+    imports: [CommonModule, FormsModule, ReactiveFormsModule, InputTextModule, ButtonModule, FloatLabelModule, CheckboxModule],
+    template: `
     <form [formGroup]="form" (ngSubmit)="save()" class="p-4" dir="rtl">
         <div class="grid grid-cols-1 gap-6">
             
@@ -67,7 +67,7 @@ export class BankFormComponent implements OnInit {
         public config: DynamicDialogConfig,
         private setupService: SetupService,
         private messageService: MessageService
-    ) {}
+    ) { }
 
     ngOnInit() {
         this.isEdit = !!this.config.data?.bankId;
@@ -85,20 +85,49 @@ export class BankFormComponent implements OnInit {
         if (this.form.invalid) return;
 
         this.loading = true;
-        const payload = this.form.value;
+
+        // Filter payload to only send what the backend expects
+        const { isActive, ...payload } = this.form.value;
+
+        // Sanitize string inputs
+        if (payload.swiftCode) {
+            payload.swiftCode = payload.swiftCode.trim().toUpperCase();
+        }
+        if (payload.bankNameAr) payload.bankNameAr = payload.bankNameAr.trim();
+        if (payload.bankNameEn) payload.bankNameEn = payload.bankNameEn?.trim();
+
         const request = this.isEdit
-            ? this.setupService.update('banks', this.id, payload)
+            ? this.setupService.update('banks', this.id, { ...payload, isActive: isActive ? 1 : 0 })
             : this.setupService.create('banks', payload);
 
         request.subscribe({
-            next: () => {
+            next: (res: any) => {
                 this.loading = false;
-                this.messageService.add({severity:'success', summary:'نجاح', detail: 'تم الحفظ بنجاح'});
+                this.messageService.add({
+                    severity: 'success',
+                    summary: 'نجاح',
+                    detail: res.message || 'تم الحفظ بنجاح'
+                });
                 this.ref.close(true);
             },
-            error: () => {
+            error: (err) => {
                 this.loading = false;
-                this.messageService.add({severity:'error', summary:'خطأ', detail: 'حدث خطأ أثناء الحفظ'});
+                console.error('Bank Save Error:', err);
+
+                let errorDetail = 'حدث خطأ أثناء الحفظ';
+                if (err.error?.errors) {
+                    // Extract validation errors from backend (FluentValidation)
+                    const validationErrors = Object.values(err.error.errors).flat();
+                    errorDetail = validationErrors[0] as string || errorDetail;
+                } else if (err.error?.message) {
+                    errorDetail = err.error.message;
+                }
+
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'خطأ',
+                    detail: errorDetail
+                });
             }
         });
     }

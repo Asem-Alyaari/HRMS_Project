@@ -1,0 +1,202 @@
+<div class="space-y-8 p-2" dir="rtl">
+
+    <!-- Qualifications Section -->
+    <div class="bg-indigo-50/30 p-4 rounded-2xl border border-indigo-100">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="font-bold text-slate-800 flex items-center gap-2">
+                <i class="pi pi-verified text-indigo-600"></i> المؤهلات العلمية
+            </h3>
+            <button pButton label="إضافة مؤهل" icon="pi pi-plus" class="p-button-sm p-button-outlined p-button-indigo"
+                (click)="showQualDialog = true"></button>
+        </div>
+
+        <p-table [value]="data.qualifications" styleClass="p-datatable-sm rounded-xl overflow-hidden shadow-sm"
+            *ngIf="data.qualifications.length > 0">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>الدرجة</th>
+                    <th>التخصص</th>
+                    <th>الجامعة</th>
+                    <th class="w-20"></th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-q let-i="rowIndex">
+                <tr>
+                    <td>{{q.degreeType}}</td>
+                    <td>{{q.majorAr}}</td>
+                    <td>{{q.universityAr}}</td>
+                    <td class="text-center">
+                        <button pButton icon="pi pi-trash" class="p-button-text p-button-danger p-button-sm"
+                            (click)="removeQual(i)"></button>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+        <p *ngIf="data.qualifications.length === 0" class="text-slate-400 text-xs text-center py-2">لا توجد مؤهلات مضافة
+        </p>
+    </div>
+
+    <!-- Experiences Section -->
+    <div class="bg-teal-50/30 p-4 rounded-2xl border border-teal-100">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="font-bold text-slate-800 flex items-center gap-2">
+                <i class="pi pi-briefcase text-teal-600"></i> الخبرات السابقة
+            </h3>
+            <button pButton label="إضافة خبرة" icon="pi pi-plus" class="p-button-sm p-button-outlined p-button-teal"
+                (click)="showExpDialog = true"></button>
+        </div>
+
+        <p-table [value]="data.experiences" styleClass="p-datatable-sm rounded-xl overflow-hidden shadow-sm"
+            *ngIf="data.experiences.length > 0">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>المسمى</th>
+                    <th>الشركة</th>
+                    <th>الفترة</th>
+                    <th class="w-20"></th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-e let-i="rowIndex">
+                <tr>
+                    <td>{{e.jobTitleAr}}</td>
+                    <td>{{e.companyNameAr}}</td>
+                    <td>{{e.startDate | date:'yyyy'}} - {{e.isCurrent ? 'الآن' : (e.endDate | date:'yyyy')}}</td>
+                    <td class="text-center">
+                        <button pButton icon="pi pi-trash" class="p-button-text p-button-danger p-button-sm"
+                            (click)="removeExp(i)"></button>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+        <p *ngIf="data.experiences.length === 0" class="text-slate-400 text-xs text-center py-2">لا توجد خبرات مضافة</p>
+    </div>
+
+    <!-- Certifications Section -->
+    <div class="bg-yellow-50/30 p-4 rounded-2xl border border-yellow-100">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="font-bold text-slate-800 flex items-center gap-2">
+                <i class="pi pi-verified text-yellow-600"></i> الشهادات المهنية
+            </h3>
+            <button pButton label="إضافة شهادة" icon="pi pi-plus" class="p-button-sm p-button-outlined p-button-warning"
+                (click)="showCertDialog = true"></button>
+        </div>
+
+        <p-table [value]="data.certifications" styleClass="p-datatable-sm rounded-xl overflow-hidden shadow-sm"
+            *ngIf="data.certifications.length > 0">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>الشهادة</th>
+                    <th>الجهة</th>
+                    <th class="w-20"></th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-c let-i="rowIndex">
+                <tr>
+                    <td>{{c.certificationName}}</td>
+                    <td>{{c.issuingOrganization}}</td>
+                    <td class="text-center">
+                        <button pButton icon="pi pi-trash" class="p-button-text p-button-danger p-button-sm"
+                            (click)="removeCert(i)"></button>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+        <p *ngIf="data.certifications.length === 0" class="text-slate-400 text-xs text-center py-2">لا توجد شهادات مضافة
+        </p>
+    </div>
+
+    <!-- Navigation -->
+    <div class="flex justify-between mt-8 pt-4 border-t border-slate-100">
+        <button pButton label="السابق" icon="pi pi-arrow-right" class="p-button-outlined" (click)="onPrev()"></button>
+        <button pButton label="حفظ وإنشاء ملف الموظف" icon="pi pi-check" class="p-button-primary px-6"
+            (click)="onSubmit()"></button>
+    </div>
+</div>
+
+<!-- Dialogs for adding -->
+<p-dialog header="إضافة مؤهل" [(visible)]="showQualDialog" [modal]="true" [style]="{width: '450px'}"
+    styleClass="p-fluid">
+    <div class="grid gap-4 mt-2">
+        <div class="flex flex-col gap-1">
+            <label class="text-xs font-bold">نوع الدرجة</label>
+            <input pInputText [(ngModel)]="tempQual.degreeType" placeholder="بكالوريوس، ماجستير..." />
+        </div>
+        <div class="flex flex-col gap-1">
+            <label class="text-xs font-bold">التخصص</label>
+            <input pInputText [(ngModel)]="tempQual.majorAr" />
+        </div>
+        <div class="flex flex-col gap-1">
+            <label class="text-xs font-bold">الجامعة</label>
+            <input pInputText [(ngModel)]="tempQual.universityAr" />
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+            <div class="flex flex-col gap-1">
+                <label class="text-xs font-bold">سنة التخرج</label>
+                <p-inputNumber [(ngModel)]="tempQual.graduationYear" [useGrouping]="false"></p-inputNumber>
+            </div>
+            <div class="flex flex-col gap-1">
+                <label class="text-xs font-bold">الدولة</label>
+                <p-select [options]="countries()" [(ngModel)]="tempQual.countryId" optionLabel="label"
+                    optionValue="value" placeholder="اختر"></p-select>
+            </div>
+        </div>
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton label="إلغاء" class="p-button-text" (click)="showQualDialog = false"></button>
+        <button pButton label="إضافة" (click)="addQualification()"></button>
+    </ng-template>
+</p-dialog>
+
+<p-dialog header="إضافة خبرة" [(visible)]="showExpDialog" [modal]="true" [style]="{width: '450px'}"
+    styleClass="p-fluid">
+    <div class="grid gap-4 mt-2">
+        <div class="flex flex-col gap-1">
+            <label class="text-xs font-bold">المسمى الوظيفي</label>
+            <input pInputText [(ngModel)]="tempExp.jobTitleAr" />
+        </div>
+        <div class="flex flex-col gap-1">
+            <label class="text-xs font-bold">الشركة</label>
+            <input pInputText [(ngModel)]="tempExp.companyNameAr" />
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+            <div class="flex flex-col gap-1">
+                <label class="text-xs font-bold">تاريخ البدء</label>
+                <p-datePicker [(ngModel)]="tempExp.startDate"></p-datePicker>
+            </div>
+            <div class="flex flex-col gap-1">
+                <label class="text-xs font-bold">تاريخ الانتهاء</label>
+                <p-datePicker [(ngModel)]="tempExp.endDate" [disabled]="tempExp.isCurrent"></p-datePicker>
+            </div>
+        </div>
+        <div class="flex items-center gap-2">
+            <p-checkbox [(ngModel)]="tempExp.isCurrent" [binary]="true" inputId="isCurrentWizard"></p-checkbox>
+            <label for="isCurrentWizard" class="text-xs">لا أزال أعمل هنا</label>
+        </div>
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton label="إلغاء" class="p-button-text" (click)="showExpDialog = false"></button>
+        <button pButton label="إضافة" (click)="addExperience()"></button>
+    </ng-template>
+</p-dialog>
+
+<p-dialog header="إضافة شهادة" [(visible)]="showCertDialog" [modal]="true" [style]="{width: '450px'}"
+    styleClass="p-fluid">
+    <div class="grid gap-4 mt-2">
+        <div class="flex flex-col gap-1">
+            <label class="text-xs font-bold">اسم الشهادة</label>
+            <input pInputText [(ngModel)]="tempCert.certificationName" />
+        </div>
+        <div class="flex flex-col gap-1">
+            <label class="text-xs font-bold">الجهة المانحة</label>
+            <input pInputText [(ngModel)]="tempCert.issuingOrganization" />
+        </div>
+        <div class="flex flex-col gap-1">
+            <label class="text-xs font-bold">تاريخ الإصدار</label>
+            <p-datePicker [(ngModel)]="tempCert.issueDate"></p-datePicker>
+        </div>
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton label="إلغاء" class="p-button-text" (click)="showCertDialog = false"></button>
+        <button pButton label="إضافة" (click)="addCertification()"></button>
+    </ng-template>
+</p-dialog>

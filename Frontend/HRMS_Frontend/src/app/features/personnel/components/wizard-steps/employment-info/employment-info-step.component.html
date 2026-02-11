@@ -2,26 +2,33 @@
 
     <!-- Department -->
     <div class="flex flex-col gap-2">
-        <label class="text-sm font-medium text-slate-700 dark:text-zinc-300">القسم / الإدارة <span class="text-red-500">*</span></label>
-        <p-select [options]="departments" [(ngModel)]="data.departmentId" (ngModelChange)="onChange()" optionLabel="label" optionValue="value" placeholder="اختر القسم" styleClass="w-full"></p-select>
+        <label class="text-sm font-medium text-slate-700 dark:text-zinc-300">القسم / الإدارة <span
+                class="text-red-500">*</span></label>
+        <p-select [options]="departments()" [(ngModel)]="data.departmentId" (ngModelChange)="onChange()"
+            optionLabel="label" optionValue="value" placeholder="اختر القسم" styleClass="w-full"></p-select>
     </div>
 
     <!-- Job -->
     <div class="flex flex-col gap-2">
-        <label class="text-sm font-medium text-slate-700 dark:text-zinc-300">الوظيفة <span class="text-red-500">*</span></label>
-        <p-select [options]="jobs" [(ngModel)]="data.jobId" (ngModelChange)="onChange()" optionLabel="label" optionValue="value" placeholder="اختر الوظيفة" styleClass="w-full"></p-select>
+        <label class="text-sm font-medium text-slate-700 dark:text-zinc-300">الوظيفة <span
+                class="text-red-500">*</span></label>
+        <p-select [options]="jobs()" [(ngModel)]="data.jobId" (ngModelChange)="onChange()" optionLabel="label"
+            optionValue="value" placeholder="اختر الوظيفة" styleClass="w-full"></p-select>
     </div>
 
     <!-- Manager (Optional) -->
     <div class="flex flex-col gap-2">
         <label class="text-sm font-medium text-slate-700 dark:text-zinc-300">المدير المباشر</label>
-        <input pInputText type="number" [(ngModel)]="data.managerId" (ngModelChange)="onChange()" placeholder="رقم المدير" />
+        <input pInputText type="number" [(ngModel)]="data.managerId" (ngModelChange)="onChange()"
+            placeholder="رقم المدير" />
     </div>
 
     <!-- Hire Date -->
     <div class="flex flex-col gap-2">
-        <label class="text-sm font-medium text-slate-700 dark:text-zinc-300">تاريخ التعيين <span class="text-red-500">*</span></label>
-        <p-datePicker [(ngModel)]="data.hireDate" (ngModelChange)="onChange()" placeholder="dd/mm/yyyy" styleClass="w-full"></p-datePicker>
+        <label class="text-sm font-medium text-slate-700 dark:text-zinc-300">تاريخ التعيين <span
+                class="text-red-500">*</span></label>
+        <p-datePicker [(ngModel)]="data.hireDate" (ngModelChange)="onChange()" placeholder="dd/mm/yyyy"
+            styleClass="w-full"></p-datePicker>
     </div>
 
     <!-- Professional License (Medical etc.) -->
@@ -32,7 +39,8 @@
 
     <div class="flex flex-col gap-2">
         <label class="text-sm font-medium text-slate-700 dark:text-zinc-300">تاريخ انتهاء الرخصة</label>
-        <p-datePicker [(ngModel)]="data.licenseExpiryDate" (ngModelChange)="onChange()" placeholder="dd/mm/yyyy" styleClass="w-full"></p-datePicker>
+        <p-datePicker [(ngModel)]="data.licenseExpiryDate" (ngModelChange)="onChange()" placeholder="dd/mm/yyyy"
+            styleClass="w-full"></p-datePicker>
     </div>
 
     <div class="flex flex-col gap-2">

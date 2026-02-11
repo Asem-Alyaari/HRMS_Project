@@ -1,0 +1,103 @@
+<div class="card p-6 bg-white dark:bg-zinc-900 rounded-3xl shadow-sm border border-slate-100 dark:border-zinc-800"
+    dir="rtl">
+    <p-toast></p-toast>
+
+    <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-slate-800 dark:text-zinc-100">أقساط القروض الشهرية</h1>
+            <p class="text-slate-500 dark:text-zinc-400 text-sm mt-1">متابعة الأقساط المستحقة والمسددة للموظفين</p>
+        </div>
+
+        <div class="flex gap-3">
+            <p-datepicker [(ngModel)]="selectedDate" view="month" dateFormat="mm/yy" [readonlyInput]="true"
+                (onSelect)="loadInstallments()" styleClass="w-40"></p-datepicker>
+            <p-button label="قرض جديد" icon="pi pi-plus" (onClick)="openNew()"
+                styleClass="p-button-primary p-button-rounded"></p-button>
+        </div>
+    </div>
+
+    <p-table [value]="installments()" [rows]="10" [paginator]="true" [loading]="loading()"
+        styleClass="p-datatable-sm p-datatable-gridlines" [rowHover]="true" responsiveLayout="scroll">
+
+        <ng-template pTemplate="header">
+            <tr class="bg-slate-50 dark:bg-zinc-950 text-slate-700 dark:text-zinc-300 text-sm">
+                <th>الموظف</th>
+                <th>رقم القسط</th>
+                <th>المبلغ</th>
+                <th>تاريخ الاستحقاق</th>
+                <th>الحالة</th>
+                <th>تاريخ السداد</th>
+                <th>ملاحظات</th>
+            </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-item>
+            <tr class="transition-colors hover:bg-slate-50 dark:hover:bg-zinc-800/50">
+                <td class="font-medium text-slate-800 dark:text-zinc-200">{{item.employeeName || 'موظف #' +
+                    item.employeeId}}</td>
+                <td>{{item.installmentNumber}}</td>
+                <td class="text-blue-600 font-bold">{{item.amount | number:'1.2-2'}}</td>
+                <td>{{item.dueDate | date:'dd/MM/yyyy'}}</td>
+                <td>
+                    <p-tag [value]="item.isPaid ? 'مسدد' : 'مستحق'"
+                        [severity]="item.isPaid ? 'success' : 'warn'"></p-tag>
+                </td>
+                <td>{{item.paidDate ? (item.paidDate | date:'dd/MM/yyyy') : '-'}}</td>
+                <td class="text-sm text-slate-500">{{item.notes || '-'}}</td>
+            </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+            <tr>
+                <td colspan="7" class="text-center py-8 text-slate-400">لا توجد أقساط مسجلة لهذا الشهر</td>
+            </tr>
+        </ng-template>
+    </p-table>
+</div>
+
+<p-dialog [(visible)]="loanDialog" [style]="{width: '450px'}" header="طلب قرض جديد" [modal]="true" styleClass="p-fluid"
+    [rtl]="true">
+    <ng-template pTemplate="content">
+        <div class="field mb-4">
+            <label class="block text-sm font-medium mb-1">الموظف</label>
+            <p-select [options]="employees()" [(ngModel)]="newLoan.employeeId" optionLabel="fullNameAr"
+                optionValue="employeeId" placeholder="اختر الموظف" [filter]="true" filterBy="fullNameAr" appendTo="body"
+                class="w-full">
+            </p-select>
+            <small class="p-error block mt-1" *ngIf="submitted() && !newLoan.employeeId">الموظف مطلوب</small>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+            <div class="field mb-4">
+                <label class="block text-sm font-medium mb-1">إجمالي المبلغ</label>
+                <p-inputnumber [(ngModel)]="newLoan.loanAmount" mode="currency" currency="USD" locale="en-US"
+                    class="w-full"></p-inputnumber>
+                <small class="p-error block mt-1" *ngIf="submitted() && newLoan.loanAmount <= 0">المبلغ يجب أن يكون
+                    أكبر من صفر</small>
+            </div>
+            <div class="field mb-4">
+                <label class="block text-sm font-medium mb-1">عدد الأقساط</label>
+                <p-inputnumber [(ngModel)]="newLoan.installmentCount" [min]="1" [max]="60"
+                    class="w-full"></p-inputnumber>
+            </div>
+        </div>
+
+        <div class="field mb-4">
+            <label class="block text-sm font-medium mb-1">تاريخ البدء</label>
+            <p-datepicker [(ngModel)]="newLoan.startDate" dateFormat="dd/mm/yy" appendTo="body"
+                class="w-full"></p-datepicker>
+        </div>
+
+        <div class="field mb-4">
+            <label class="block text-sm font-medium mb-1">السبب</label>
+            <textarea pTextarea [(ngModel)]="newLoan.reason" rows="3" class="w-full border p-2 rounded-md"></textarea>
+        </div>
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+        <div class="flex gap-2 justify-end mt-4">
+            <p-button label="إلغاء" icon="pi pi-times" (onClick)="hideDialog()" styleClass="p-button-text"></p-button>
+            <p-button label="حفظ" icon="pi pi-check" (onClick)="saveLoan()" styleClass="p-button-primary"></p-button>
+        </div>
+    </ng-template>
+</p-dialog>

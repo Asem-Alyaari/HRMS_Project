@@ -1,0 +1,136 @@
+<div class="p-6" dir="rtl">
+    <p-toast></p-toast>
+
+    <div class="flex items-center gap-3 mb-8">
+        <div
+            class="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+            <i class="pi pi-th-large text-xl"></i>
+        </div>
+        <div>
+            <h1 class="text-2xl font-bold text-slate-800 dark:text-zinc-100">لوحة معلومات الإجازات</h1>
+            <p class="text-slate-500 dark:text-zinc-400 text-sm">متابعة الأداء، الإحصائيات، والاعتماد الجماعي للطلبات
+            </p>
+        </div>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <p-card styleClass="border-none shadow-sm rounded-3xl overflow-hidden bg-white dark:bg-zinc-900">
+            <div class="flex items-center justify-between">
+                <div>
+                    <span class="text-slate-500 dark:text-zinc-400 text-xs font-medium block mb-1">طلبات بانتظار
+                        الموافقة</span>
+                    <span class="text-3xl font-bold text-orange-500">{{stats()?.pendingCount || 0}}</span>
+                </div>
+                <div class="w-12 h-12 rounded-full bg-orange-50 flex items-center justify-center text-orange-600">
+                    <i class="pi pi-clock text-xl"></i>
+                </div>
+            </div>
+        </p-card>
+
+        <p-card styleClass="border-none shadow-sm rounded-3xl overflow-hidden bg-white dark:bg-zinc-900">
+            <div class="flex items-center justify-between">
+                <div>
+                    <span class="text-slate-500 dark:text-zinc-400 text-xs font-medium block mb-1">معتمدة (هذا
+                        الشهر)</span>
+                    <span class="text-3xl font-bold text-emerald-500">{{stats()?.approvedThisMonth || 0}}</span>
+                </div>
+                <div class="w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600">
+                    <i class="pi pi-check text-xl"></i>
+                </div>
+            </div>
+        </p-card>
+
+        <p-card styleClass="border-none shadow-sm rounded-3xl overflow-hidden bg-white dark:bg-zinc-900">
+            <div class="flex items-center justify-between">
+                <div>
+                    <span class="text-slate-500 dark:text-zinc-400 text-xs font-medium block mb-1">طلبات متأخرة (+48
+                        س)</span>
+                    <span class="text-3xl font-bold text-red-500">{{stats()?.delayedCount || 0}}</span>
+                </div>
+                <div class="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center text-red-600">
+                    <i class="pi pi-exclamation-circle text-xl"></i>
+                </div>
+            </div>
+        </p-card>
+
+        <p-card styleClass="border-none shadow-sm rounded-3xl overflow-hidden bg-white dark:bg-zinc-900">
+            <div class="flex items-center justify-between">
+                <div>
+                    <span class="text-slate-500 dark:text-zinc-400 text-xs font-medium block mb-1">متوسط وقت
+                        الموافقة</span>
+                    <span class="text-xl font-bold text-blue-500">{{stats()?.averageApprovalTimeHours || 0}} ساعة</span>
+                </div>
+                <div class="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center text-blue-600">
+                    <i class="pi pi-hourglass text-xl"></i>
+                </div>
+            </div>
+        </p-card>
+    </div>
+
+    <!-- Delayed Approvals Table -->
+    <div class="card p-6 bg-white dark:bg-zinc-900 rounded-3xl shadow-sm border border-slate-100 dark:border-zinc-800">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-lg font-bold text-slate-800 dark:text-zinc-100">الطلبات المتأخرة بالانتظار</h2>
+            <div *ngIf="selectedRequests().length > 0" class="flex items-center gap-3">
+                <span class="text-sm text-slate-500">تم تحديد {{selectedRequests().length}} طلبات</span>
+                <p-button label="اعتماد المحدد" icon="pi pi-check" (onClick)="processBulkApproval()"
+                    [loading]="bulkProcessing()" styleClass="p-button-rounded p-button-success p-button-sm"></p-button>
+            </div>
+        </div>
+
+        <p-table [value]="delayedRequests()" [(selection)]="selectedRequests" dataKey="requestId" [loading]="loading()"
+            styleClass="p-datatable-sm p-datatable-gridlines" responsiveLayout="scroll">
+
+            <ng-template pTemplate="header">
+                <tr class="bg-slate-50 dark:bg-zinc-950 text-slate-700 dark:text-zinc-300">
+                    <th style="width: 4rem" class="text-center">
+                        <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                    </th>
+                    <th>الموظف</th>
+                    <th>نوع الإجازة</th>
+                    <th class="text-center">التاريخ</th>
+                    <th class="text-center">المدة (أيام)</th>
+                    <th class="text-center">الحالة</th>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="body" let-request>
+                <tr class="hover:bg-slate-50 dark:hover:bg-zinc-800/50 transition-colors">
+                    <td class="text-center">
+                        <p-tableCheckbox [value]="request"></p-tableCheckbox>
+                    </td>
+                    <td>
+                        <div class="flex flex-col">
+                            <span class="font-bold text-sm">{{request.employeeNameAr || 'موظف'}}</span>
+                            <span class="text-[10px] text-slate-400">{{request.employeeId}}</span>
+                        </div>
+                    </td>
+                    <td class="text-sm text-slate-600 dark:text-zinc-400">
+                        {{request.leaveTypeNameAr}}
+                    </td>
+                    <td class="text-center text-sm">
+                        <span class="bg-slate-100 dark:bg-zinc-800 px-2 py-1 rounded">
+                            {{request.startDate | date:'dd/MM/yyyy'}}
+                        </span>
+                    </td>
+                    <td class="text-center font-bold text-indigo-600">
+                        {{request.totalDays}}
+                    </td>
+                    <td class="text-center">
+                        <p-tag [value]="'متأخر'" severity="danger" styleClass="text-[10px]"></p-tag>
+                    </td>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td colspan="6" class="text-center py-12 text-slate-400">
+                        <i class="pi pi-check-circle text-4xl mb-3 block opacity-20"></i>
+                        لا توجد طلبات متأخرة حالياً
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+</div>

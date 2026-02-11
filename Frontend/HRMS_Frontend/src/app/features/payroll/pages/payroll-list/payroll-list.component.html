@@ -1,0 +1,56 @@
+<div class="card p-6 bg-white dark:bg-zinc-900 rounded-3xl shadow-sm border border-slate-100 dark:border-zinc-800"
+    dir="rtl">
+    <p-toast></p-toast>
+
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+        <div class="flex items-center gap-3">
+            <div
+                class="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                <i class="pi pi-wallet text-xl"></i>
+            </div>
+            <div>
+                <h1 class="text-xl font-bold text-slate-800 dark:text-zinc-100">إدارة الرواتب</h1>
+                <p class="text-slate-500 dark:text-zinc-400 text-xs mt-1">معالجة مسيرات الرواتب الشهرية وتصدير ملفات
+                    البنوك</p>
+            </div>
+        </div>
+
+        <div class="flex flex-wrap gap-3 items-center">
+            <p-datepicker [(ngModel)]="selectedDate" view="month" dateFormat="mm/yy" [readonlyInput]="true"
+                styleClass="w-48 text-sm">
+            </p-datepicker>
+
+            <p-button label="بدء المعالجة" icon="pi pi-cog" (onClick)="processPayroll()" [loading]="processing()"
+                styleClass="p-button-rounded p-button-primary"></p-button>
+            <p-button label="تحميل ملف البنك" icon="pi pi-file-excel" (onClick)="exportBankFile()"
+                styleClass="p-button-rounded p-button-outlined p-button-success"></p-button>
+        </div>
+    </div>
+
+    <!-- Info Section -->
+    <div class="bg-blue-50 dark:bg-blue-900/10 p-6 rounded-2xl border border-blue-100 dark:border-blue-900/20 mb-6">
+        <div class="flex items-start gap-4 text-blue-800 dark:text-blue-300">
+            <i class="pi pi-info-circle text-2xl mt-1"></i>
+            <div>
+                <h3 class="font-bold mb-1 italic">تعليمات المعالجة</h3>
+                <ul class="text-sm list-disc list-inside space-y-1 opacity-80">
+                    <li>يرجى التأكد من إغلاق سجلات الحضور والانصراف للشهر المختار قبل بدء معالجة الرواتب.</li>
+                    <li>تقوم عملية المعالجة بحساب الرواتب الأساسية، البدلات، والاستقطاعات بناءً على السياسات المعتمدة.
+                    </li>
+                    <li>يمكنك تحميل ملف تحويل البنك بصيغة Excel بعد إتمام المعالجة.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Empty State / Placeholder for recent runs -->
+    <div class="py-12 border-2 border-dashed border-slate-100 dark:border-zinc-800 rounded-3xl text-center">
+        <div class="flex flex-col items-center text-slate-400">
+            <i class="pi pi-history text-5xl mb-4"></i>
+            <h4 class="text-lg font-medium text-slate-600 dark:text-zinc-300">جاهز لمعالجة الرواتب</h4>
+            <p class="text-sm max-w-sm mx-auto mt-2">اختر الشهر والسنة المطلوبة من الأعلى ثم ابدأ عملية احتساب الرواتب
+                للموظفين.</p>
+        </div>
+    </div>
+</div>

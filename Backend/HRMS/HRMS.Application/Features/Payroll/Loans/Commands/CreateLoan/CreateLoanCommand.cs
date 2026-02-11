@@ -57,7 +57,7 @@ public class CreateLoanCommandHandler : IRequestHandler<CreateLoanCommand, Resul
             LoanAmount = request.LoanAmount,
             InstallmentCount = request.InstallmentCount,
             RequestDate = DateTime.Now,
-            Status = "ACTIVE"
+            Status = "PENDING"
         };
 
         // 5. Generate Installments

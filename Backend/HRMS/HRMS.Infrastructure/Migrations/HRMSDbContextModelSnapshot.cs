@@ -3968,7 +3968,6 @@ namespace HRMS.Infrastructure.Migrations
                         .HasColumnName("DEPARTMENT_ID");
 
                     b.Property<string>("Email")
-                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)")
                         .HasColumnName("EMAIL");
@@ -3993,8 +3992,8 @@ namespace HRMS.Infrastructure.Migrations
 
                     b.Property<string>("Gender")
                         .IsRequired()
-                        .HasMaxLength(1)
-                        .HasColumnType("nvarchar(1)")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)")
                         .HasColumnName("GENDER");
 
                     b.Property<DateTime>("HireDate")
@@ -4928,6 +4927,10 @@ namespace HRMS.Infrastructure.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)")
                         .HasColumnName("CREATED_BY");
+
+                    b.Property<DateTime?>("ExpiryDate")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("EXPIRY_DATE");
 
                     b.Property<decimal?>("HousingAllowance")
                         .HasColumnType("decimal(10, 2)")

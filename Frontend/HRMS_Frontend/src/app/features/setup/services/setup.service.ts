@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../../../environments/environment.development';
+import { environment } from '../../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -13,7 +13,7 @@ export class SetupService {
   // Using a fallback for now if environment is not fully set up in this context.
   private apiUrl = environment.apiUrl;
 
-  constructor() {}
+  constructor() { }
 
   // Generic Get All
   getAll<T>(endpoint: string): Observable<T[]> {

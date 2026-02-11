@@ -1,0 +1,57 @@
+<div class="card p-6 bg-white dark:bg-zinc-900 rounded-3xl shadow-sm border border-slate-100 dark:border-zinc-800"
+    dir="rtl">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+        <div class="flex items-center gap-3">
+            <div
+                class="w-12 h-12 rounded-2xl bg-orange-50 dark:bg-orange-900/20 flex items-center justify-center text-orange-600 dark:text-orange-400">
+                <i class="pi pi-file-edit text-xl"></i>
+            </div>
+            <div>
+                <h1 class="text-xl font-bold text-slate-800 dark:text-zinc-100">طلبات التوظيف</h1>
+                <p class="text-slate-500 dark:text-zinc-400 text-xs mt-1">متابعة وفرز كافة الطلبات المقدمة للوظائف</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <p-table [value]="applications()" [rows]="10" [paginator]="true" [loading]="loading()"
+        styleClass="p-datatable-sm p-datatable-gridlines" responsiveLayout="scroll">
+
+        <ng-template pTemplate="header">
+            <tr class="bg-slate-50 dark:bg-zinc-950 text-slate-700 dark:text-zinc-300 text-sm">
+                <th>اسم المرشح</th>
+                <th>الوظيفة المطلوبة</th>
+                <th class="text-center">تاريخ التقديم</th>
+                <th class="text-center">الحالة</th>
+                <th class="w-24 text-center">الإجراءات</th>
+            </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-item>
+            <tr class="transition-colors hover:bg-slate-50 dark:hover:bg-zinc-800/50">
+                <td class="font-bold text-slate-800 dark:text-zinc-200">{{item.candidateName}}</td>
+                <td class="text-slate-600 dark:text-zinc-400 text-sm">{{item.jobTitle}}</td>
+                <td class="text-center text-sm text-slate-500">{{item.applyDate | date:'dd/MM/yyyy'}}</td>
+                <td class="text-center">
+                    <p-tag [value]="getStatusLabel(item.status)" [severity]="getStatusSeverity(item.status)"
+                        styleClass="text-[10px]"></p-tag>
+                </td>
+                <td>
+                    <div class="flex justify-center">
+                        <button pButton icon="pi pi-user-edit"
+                            class="p-button-text p-button-rounded p-button-sm text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-900/20"
+                            pTooltip="عرض الملف"></button>
+                    </div>
+                </td>
+            </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+            <tr>
+                <td colspan="5" class="text-center py-12 text-slate-500">لا يوجد طلبات توظيف حالياً</td>
+            </tr>
+        </ng-template>
+
+    </p-table>
+</div>

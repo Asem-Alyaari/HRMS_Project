@@ -12,6 +12,7 @@ import { EmployeeService } from '../../services/employee.service';
 import { PersonalInfoStepComponent } from '../../components/wizard-steps/personal-info/personal-info-step.component';
 import { EmploymentInfoStepComponent } from '../../components/wizard-steps/employment-info/employment-info-step.component';
 import { FinancialInfoStepComponent } from '../../components/wizard-steps/financial-info/financial-info-step.component';
+import { AdditionalInfoStepComponent } from '../../components/wizard-steps/additional-info/additional-info-step.component';
 
 @Component({
   selector: 'app-employee-wizard',
@@ -23,7 +24,8 @@ import { FinancialInfoStepComponent } from '../../components/wizard-steps/financ
     ToastModule,
     PersonalInfoStepComponent,
     EmploymentInfoStepComponent,
-    FinancialInfoStepComponent
+    FinancialInfoStepComponent,
+    AdditionalInfoStepComponent
   ],
   providers: [MessageService],
   templateUrl: './employee-wizard.component.html',
@@ -49,16 +51,16 @@ export class EmployeeWizardComponent {
     mobile: '',
     nationalityId: 0,
     nationalId: '',
-    
+
     departmentId: 0,
     jobId: 0,
     hireDate: new Date(),
-    
+
     basicSalary: 0,
     housingAllowance: 0,
     transportAllowance: 0,
     medicalAllowance: 0,
-    
+
     qualifications: [],
     experiences: [],
     emergencyContacts: [],
@@ -93,8 +95,43 @@ export class EmployeeWizardComponent {
       },
       error: (err) => {
         this.loading.set(false);
-        this.messageService.add({ severity: 'error', summary: 'خطأ', detail: 'حدث خطأ أثناء حفظ البيانات' });
-        console.error(err);
+        console.error('Error creating employee:', err);
+
+        // Extract error message from backend response
+        let errorMessage = 'حدث خطأ أثناء حفظ البيانات';
+        let errorDetails: string[] = [];
+
+        if (err.error) {
+          // Check if it's our Result<T> format
+          if (err.error.message) {
+            errorMessage = err.error.message;
+          }
+
+          // Extract validation errors array
+          if (err.error.errors && Array.isArray(err.error.errors)) {
+            errorDetails = err.error.errors;
+          }
+        }
+
+        // Display main error message
+        this.messageService.add({
+          severity: 'error',
+          summary: 'خطأ في البيانات',
+          detail: errorMessage,
+          life: 5000
+        });
+
+        // Display each validation error separately
+        errorDetails.forEach((error, index) => {
+          setTimeout(() => {
+            this.messageService.add({
+              severity: 'warn',
+              summary: `خطأ ${index + 1}`,
+              detail: error,
+              life: 6000
+            });
+          }, 100 * (index + 1)); // Stagger the messages
+        });
       }
     });
   }

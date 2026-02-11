@@ -1,0 +1,221 @@
+<div class="p-6 md:p-8 bg-slate-50/50 dark:bg-zinc-950/50 min-h-screen" dir="rtl">
+    <p-toast></p-toast>
+    <p-confirmDialog></p-confirmDialog>
+
+    <!-- Premium Header -->
+    <div
+        class="relative overflow-hidden bg-white dark:bg-zinc-900 rounded-[3rem] shadow-2xl shadow-slate-200/50 dark:shadow-none border border-white dark:border-zinc-800 p-8 mb-10">
+        <div class="absolute -right-20 -top-20 w-64 h-64 bg-blue-500/5 rounded-full blur-3xl"></div>
+        <div class="absolute -left-20 -bottom-20 w-64 h-64 bg-indigo-500/5 rounded-full blur-3xl"></div>
+
+        <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div class="flex items-center gap-6">
+                <div
+                    class="w-20 h-20 rounded-[2.5rem] bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center text-white shadow-lg shadow-blue-500/30">
+                    <i class="pi pi-lock text-4xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-4xl font-black text-slate-800 dark:text-white tracking-tight mb-1">إدارة وإغلاق
+                        الحضور</h1>
+                    <div class="flex items-center gap-2 text-slate-400 dark:text-zinc-500 font-medium">
+                        <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+                        معالجة البيانات الشهرية وتثبيت سجلات الرواتب
+                    </div>
+                </div>
+            </div>
+
+            <div
+                class="flex items-center gap-4 bg-slate-50 dark:bg-zinc-800/50 p-3 rounded-[2rem] border border-slate-100 dark:border-zinc-800">
+                <i class="pi pi-calendar text-blue-500 mr-2"></i>
+                <p-datepicker [(ngModel)]="selectedDate" view="month" dateFormat="mm/yy"
+                    (onSelect)="loadPayrollSummary()"
+                    styleClass="border-none bg-transparent font-black text-slate-700 dark:text-white cursor-pointer px-2">
+                </p-datepicker>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 xl:grid-cols-12 gap-8">
+        <!-- Control Operations -->
+        <div class="xl:col-span-4 flex flex-col gap-8">
+            <div
+                class="bg-white dark:bg-zinc-900 rounded-[3rem] shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-zinc-800 p-10">
+                <div class="flex items-center gap-4 mb-8">
+                    <div
+                        class="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-600">
+                        <i class="pi pi-bolt text-xl font-bold"></i>
+                    </div>
+                    <h2 class="text-2xl font-black text-slate-800 dark:text-white">عمليات التحكم</h2>
+                </div>
+
+                <div class="space-y-6">
+                    <!-- Process Card -->
+                    <div
+                        class="p-6 bg-blue-50/50 dark:bg-blue-900/10 rounded-[2rem] border border-blue-100 dark:border-blue-900/20 relative overflow-hidden group">
+                        <div
+                            class="absolute -right-4 -top-4 w-16 h-16 bg-blue-500/10 rounded-full blur-xl group-hover:scale-150 transition-all">
+                        </div>
+                        <h3 class="font-black text-blue-800 dark:text-blue-400 mb-2 flex items-center gap-2">
+                            <i class="pi pi-cog spin-slow"></i>
+                            معالجة الحضور
+                        </h3>
+                        <p class="text-xs text-blue-600/70 dark:text-blue-400/50 font-medium leading-relaxed mb-6">
+                            تقوم هذه العملية بإعادة حساب ساعات العمل، التأخير، والإضافي لجميع الموظفين بناءً على آخر
+                            التعديلات والسياسات.
+                        </p>
+                        <p-button label="تشغيل المعالجة الآن" icon="pi pi-sync"
+                            styleClass="w-full py-4 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-black border-none shadow-lg shadow-blue-500/20"
+                            (onClick)="processAttendance()" [loading]="processing()"></p-button>
+                    </div>
+
+                    <!-- Closing Card -->
+                    <div
+                        class="p-6 bg-rose-50/50 dark:bg-rose-900/10 rounded-[2rem] border border-rose-100 dark:border-rose-900/20 relative overflow-hidden group">
+                        <div
+                            class="absolute -right-4 -top-4 w-16 h-16 bg-rose-500/10 rounded-full blur-xl group-hover:scale-150 transition-all">
+                        </div>
+                        <h3 class="font-black text-rose-800 dark:text-rose-400 mb-2 flex items-center gap-2">
+                            <i class="pi pi-lock"></i>
+                            الإغلاق الشهري
+                        </h3>
+                        <p class="text-xs text-rose-600/70 dark:text-rose-400/50 font-medium leading-relaxed mb-6">
+                            يتم إغلاق الفترة لمنع أي تعديلات مستقبلية وتثبيت البيانات لمسير الرواتب. لا يمكن التراجع
+                            بسهولة.
+                        </p>
+                        <p-button label="إغلاق الشهر نهائياً" icon="pi pi-check-circle" severity="danger"
+                            styleClass="w-full py-4 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-black border-none shadow-lg shadow-rose-500/20"
+                            (onClick)="closeMonth()" [loading]="processing()"></p-button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Guidelines -->
+            <div class="bg-indigo-900 rounded-[3rem] p-10 text-white shadow-2xl relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16 blur-2xl"></div>
+                <h4 class="text-lg font-black mb-4 flex items-center gap-2 text-indigo-300">
+                    <i class="pi pi-info-circle"></i>
+                    تنبيهات هامة
+                </h4>
+                <ul class="space-y-4 text-sm text-indigo-100/70 font-medium">
+                    <li class="flex items-start gap-3">
+                        <i class="pi pi-check text-indigo-400 mt-1"></i>
+                        تأكد من مراجعة كل الطلبات المعلقة قبل الإغلاق.
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <i class="pi pi-check text-indigo-400 mt-1"></i>
+                        المعالجة قد تستغرق بضع ثوانٍ حسب عدد الموظفين.
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Summary Table -->
+        <div class="xl:col-span-8">
+            <div
+                class="bg-white dark:bg-zinc-900 rounded-[3rem] shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-zinc-800 overflow-hidden h-full flex flex-col">
+                <div
+                    class="p-8 border-b border-slate-50 dark:border-zinc-800 flex justify-between items-center bg-slate-50/20">
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center text-indigo-600">
+                            <i class="pi pi-list font-bold"></i>
+                        </div>
+                        <h2 class="text-xl font-black text-slate-800 dark:text-white tracking-tight">ملخص جاهزية الرواتب
+                        </h2>
+                    </div>
+                </div>
+
+                <div class="flex-grow">
+                    <p-table [value]="payrollSummary()" [rows]="10" [paginator]="true" styleClass="p-datatable-premium"
+                        [rowHover]="true">
+                        <ng-template pTemplate="header">
+                            <tr class="bg-slate-50/50 dark:bg-zinc-800/50">
+                                <th class="py-6 px-8 text-right font-black text-slate-700 dark:text-zinc-200">الموظف
+                                </th>
+                                <th class="py-6 px-8 text-center font-black text-slate-700 dark:text-zinc-200">أيام
+                                    العمل</th>
+                                <th class="py-6 px-8 text-center font-black text-slate-700 dark:text-zinc-200">تأخير (د)
+                                </th>
+                                <th class="py-6 px-8 text-center font-black text-slate-700 dark:text-zinc-200">إضافي (د)
+                                </th>
+                                <th class="py-6 px-8 text-center font-black text-slate-700 dark:text-zinc-200">الخصم
+                                </th>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-item>
+                            <tr
+                                class="border-b border-slate-50 dark:border-zinc-800 hover:bg-slate-50/50 transition-colors">
+                                <td class="py-6 px-8">
+                                    <div class="flex items-center gap-3">
+                                        <div
+                                            class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-zinc-800 flex items-center justify-center font-black text-slate-400">
+                                            {{item.employeeName?.charAt(0)}}
+                                        </div>
+                                        <span
+                                            class="font-bold text-slate-800 dark:text-zinc-200">{{item.employeeName}}</span>
+                                    </div>
+                                </td>
+                                <td class="py-6 px-8 text-center font-bold text-slate-600 dark:text-zinc-400">
+                                    {{item.actualDays}} / {{item.workingDays}}
+                                </td>
+                                <td class="py-6 px-8 text-center">
+                                    <span
+                                        class="px-3 py-1 rounded-lg bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 font-bold font-mono text-sm">
+                                        {{item.lateMinutes}}
+                                    </span>
+                                </td>
+                                <td class="py-6 px-8 text-center">
+                                    <span
+                                        class="px-3 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 font-bold font-mono text-sm">
+                                        {{item.overtimeMinutes}}
+                                    </span>
+                                </td>
+                                <td class="py-6 px-8 text-center">
+                                    <span
+                                        class="px-4 py-2 rounded-xl bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 font-black text-sm">
+                                        {{item.deductionDays}} يوم
+                                    </span>
+                                </td>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="emptymessage">
+                            <tr>
+                                <td colspan="5" class="text-center py-32 opacity-20">
+                                    <i class="pi pi-inbox text-6xl mb-4 block"></i>
+                                    <span class="font-black text-xl italic">لا توجد بيانات لهذه الفترة</span>
+                                </td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    :host ::ng-deep .p-datatable-premium .p-paginator {
+        background: transparent !important;
+        border: none !important;
+        padding: 2rem !important;
+        border-top: 1px solid #f1f5f9 !important;
+    }
+
+    :host ::ng-deep .dark .p-datatable-premium .p-paginator {
+        border-color: #18181b !important;
+    }
+
+    @keyframes spin-slow {
+        from {
+            transform: rotate(0deg);
+        }
+
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    .spin-slow {
+        animation: spin-slow 8s linear infinite;
+    }
+</style>

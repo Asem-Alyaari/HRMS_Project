@@ -12,6 +12,8 @@ export const SETUP_ROUTES: Routes = [
             { path: 'banks', loadComponent: () => import('./pages/banks/banks.component').then(m => m.BanksComponent) },
             { path: 'document-types', loadComponent: () => import('./pages/document-types/document-types.component').then(m => m.DocumentTypesComponent) },
             { path: 'leave-types', loadComponent: () => import('./pages/leave-types/leave-types.component').then(m => m.LeaveTypesComponent) },
+            { path: 'leave-settings', loadComponent: () => import('./pages/leave-settings/leave-settings.component').then(m => m.LeaveSettingsComponent) },
+            { path: 'public-holidays', loadComponent: () => import('./pages/public-holidays/public-holidays.component').then(m => m.PublicHolidaysComponent) },
             { path: 'attendance-policies', loadComponent: () => import('./pages/attendance-policies/attendance-policies.component').then(m => m.AttendancePoliciesComponent) },
             { path: 'shift-types', loadComponent: () => import('./pages/shift-types/shift-types.component').then(m => m.ShiftTypesComponent) },
             { path: 'payroll-elements', loadComponent: () => import('./pages/payroll-elements/payroll-elements.component').then(m => m.PayrollElementsComponent) },

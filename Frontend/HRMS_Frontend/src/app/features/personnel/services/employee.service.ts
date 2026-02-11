@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { environment } from '../../../../environments/environment';
 import { Employee } from '../models/employee.model';
 import { CreateEmployeeDto } from '../models/create-employee.dto';
@@ -40,7 +41,9 @@ export class EmployeeService {
    * Get full employee profile (Aggregated view)
    */
   getFullProfile(id: number): Observable<EmployeeProfile> {
-    return this.http.get<EmployeeProfile>(`${this.apiUrl}/${id}/full-profile`);
+    return this.http.get<any>(`${environment.apiUrl}/employee-profile/${id}/full-profile`).pipe(
+      map(response => response.data || response)
+    );
   }
 
   /**
@@ -65,10 +68,49 @@ export class EmployeeService {
     formData.append('EmployeeId', employeeId.toString());
     formData.append('DocumentTypeId', documentTypeId.toString());
     formData.append('File', file);
-    
+
     if (documentNumber) formData.append('DocumentNumber', documentNumber);
     if (expiryDate) formData.append('ExpiryDate', expiryDate);
 
-    return this.http.post(`${this.apiUrl}/${employeeId}/documents`, formData);
+    return this.http.post(`${environment.apiUrl}/employee-profile/${employeeId}/documents`, formData);
+  }
+
+  /**
+   * Add a qualification with optional attachment
+   */
+  addQualification(employeeId: number, command: any, file?: File): Observable<any> {
+    const formData = new FormData();
+    Object.keys(command).forEach(key => {
+      if (command[key] !== null && command[key] !== undefined) {
+        formData.append(key, command[key]);
+      }
+    });
+    if (file) {
+      formData.append('Attachment', file);
+    }
+    return this.http.post(`${environment.apiUrl}/employee-profile/${employeeId}/qualifications`, formData);
+  }
+
+  /**
+   * Add a certification with optional attachment
+   */
+  addCertification(employeeId: number, command: any, file?: File): Observable<any> {
+    const formData = new FormData();
+    Object.keys(command).forEach(key => {
+      if (command[key] !== null && command[key] !== undefined) {
+        formData.append(key, command[key]);
+      }
+    });
+    if (file) {
+      formData.append('Attachment', file);
+    }
+    return this.http.post(`${environment.apiUrl}/employee-profile/${employeeId}/certifications`, formData);
+  }
+
+  /**
+   * Add an experience
+   */
+  addExperience(employeeId: number, experience: any): Observable<any> {
+    return this.http.post(`${environment.apiUrl}/employee-profile/${employeeId}/experiences`, experience);
   }
 }

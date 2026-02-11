@@ -24,6 +24,9 @@ using HRMS.Core.Utilities;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using HRMS.Application.Features.Performance.Violations.Queries.GetViolations;
+using HRMS.Application.Features.Performance.Appraisals.Queries.GetAppraisals;
+using HRMS.Application.DTOs.Performance;
 
 namespace HRMS.API.Controllers.Performance;
 
@@ -45,6 +48,25 @@ public class PerformanceController : ControllerBase
     // ═══════════════════════════════════════════════════════════
     // VIOLATIONS - المخالفات الإدارية
     // ═══════════════════════════════════════════════════════════
+
+
+    /// <summary>
+    /// الحصول على المخالفات (مع تصفية اختيارية)
+    /// </summary>
+    [HttpGet("violations")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetViolations([FromQuery] int? employeeId, [FromQuery] int? violationTypeId, [FromQuery] DateTime? fromDate, [FromQuery] DateTime? toDate)
+    {
+        var query = new GetViolationsQuery 
+        { 
+            EmployeeId = employeeId, 
+            ViolationTypeId = violationTypeId, 
+            FromDate = fromDate, 
+            ToDate = toDate 
+        };
+        var result = await _mediator.Send(query);
+        return result.Succeeded ? Ok(result) : BadRequest(result);
+    }
 
     /// <summary>
     /// تسجيل مخالفة إدارية مع حساب الخصم المالي تلقائياً
@@ -332,6 +354,18 @@ public class PerformanceController : ControllerBase
     public async Task<IActionResult> GetAppraisalCycleById(int id)
     {
         var query = new GetAppraisalCycleByIdQuery { CycleId = id };
+        var result = await _mediator.Send(query);
+        return result.Succeeded ? Ok(result) : BadRequest(result);
+    }
+
+    /// <summary>
+    /// الحصول على تقييمات الأداء (مع تصفية اختيارية)
+    /// </summary>
+    [HttpGet("appraisals")]
+    [ProducesResponseType(typeof(Result<List<EmployeeAppraisalDto>>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetAppraisals([FromQuery] int? employeeId, [FromQuery] int? cycleId)
+    {
+        var query = new GetAppraisalsQuery { EmployeeId = employeeId, CycleId = cycleId };
         var result = await _mediator.Send(query);
         return result.Succeeded ? Ok(result) : BadRequest(result);
     }

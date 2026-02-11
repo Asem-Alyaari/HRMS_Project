@@ -14,7 +14,7 @@ export interface Experience {
     jobTitleAr: string;
     startDate: Date | string;
     endDate?: Date | string;
-    isCurrent: number | boolean; // API shows 0, likely mapped to boolean or number
+    isCurrent: boolean; // Changed to boolean for UI compatibility
     responsibilities?: string;
     reasonForLeaving?: string;
 }
@@ -25,7 +25,7 @@ export interface EmergencyContact {
     relationship: string;
     phonePrimary: string;
     phoneSecondary?: string;
-    isPrimary: number | boolean;
+    isPrimary: boolean;
 }
 
 export interface Contract {

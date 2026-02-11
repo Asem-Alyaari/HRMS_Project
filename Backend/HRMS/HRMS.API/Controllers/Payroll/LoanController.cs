@@ -1,5 +1,7 @@
 using HRMS.Application.DTOs.Payroll;
 using HRMS.Application.Features.Payroll.Loans.Commands.CreateLoan;
+using HRMS.Application.Features.Payroll.Loans.Commands.UpdateLoanStatus;
+using HRMS.Application.Features.Payroll.Loans.Queries.GetLoans;
 using HRMS.Application.Features.Payroll.Loans.Queries.GetMonthlyInstallments;
 using HRMS.Application.Features.Payroll.Loans.Queries.GetEmployeeInstallments;
 using HRMS.Core.Utilities;
@@ -21,6 +23,20 @@ public class LoanController : ControllerBase
 
     [HttpPost]
     public async Task<ActionResult<Result<int>>> CreateLoan([FromBody] CreateLoanCommand command)
+    {
+        var result = await _mediator.Send(command);
+        return result.Succeeded ? Ok(result) : BadRequest(result);
+    }
+
+    [HttpGet]
+    public async Task<ActionResult<Result<List<LoanDto>>>> GetLoans([FromQuery] string? status, [FromQuery] int? employeeId)
+    {
+        var result = await _mediator.Send(new GetLoansQuery { Status = status, EmployeeId = employeeId });
+        return Ok(result);
+    }
+
+    [HttpPost("update-status")]
+    public async Task<ActionResult<Result<bool>>> UpdateStatus([FromBody] UpdateLoanStatusCommand command)
     {
         var result = await _mediator.Send(command);
         return result.Succeeded ? Ok(result) : BadRequest(result);

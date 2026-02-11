@@ -50,7 +50,7 @@ public class Employee : BaseEntity
     public DateTime BirthDate { get; set; }
 
     [Column("GENDER")]
-    [MaxLength(1)] 
+    [MaxLength(20) ]
     public string Gender { get; set; } = "M"; // M/F
 
     [Column("MARITAL_STATUS")]
@@ -63,7 +63,7 @@ public class Employee : BaseEntity
 
     [Column("EMAIL")]
     [MaxLength(100)]
-    public required string Email { get; set; }
+    public string? Email { get; set; }
 
     // --- البيانات الوظيفية ---
     [Column("HIRE_DATE")]

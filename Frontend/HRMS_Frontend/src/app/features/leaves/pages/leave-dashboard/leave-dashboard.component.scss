@@ -1,0 +1,15 @@
+:host {
+    display: block;
+    min-height: 100vh;
+    background-color: var(--surface-fafafa, #f8fafc);
+}
+
+.dark :host {
+    background-color: var(--surface-bg, #09090b);
+}
+
+::ng-deep .p-card {
+    .p-card-body {
+        padding: 1.5rem;
+    }
+}

@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { DatePickerModule } from 'primeng/datepicker';
@@ -6,6 +6,7 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 import { CreateEmployeeDto } from '../../../models/create-employee.dto';
+import { LookupService } from '../../../../../core/services/lookup.service';
 
 @Component({
   selector: 'app-employment-info-step',
@@ -22,26 +23,46 @@ import { CreateEmployeeDto } from '../../../models/create-employee.dto';
   templateUrl: './employment-info-step.component.html',
   styleUrls: ['./employment-info-step.component.scss']
 })
-export class EmploymentInfoStepComponent {
+export class EmploymentInfoStepComponent implements OnInit {
   @Input() data!: CreateEmployeeDto;
   @Output() dataChange = new EventEmitter<Partial<CreateEmployeeDto>>();
   @Output() prev = new EventEmitter<void>();
   @Output() next = new EventEmitter<void>();
 
-  // Mock Data (Should be loaded from Services)
-  departments = [
-    { label: 'الموارد البشرية', value: 1 },
-    { label: 'الإدارة المالية', value: 2 },
-    { label: 'تقنية المعلومات', value: 3 },
-    { label: 'الارشفة', value: 4 }
-  ];
+  private lookupService = inject(LookupService);
 
-  jobs = [
-    { label: 'مدير موارد بشرية', value: 1 },
-    { label: 'محاسب', value: 2 },
-    { label: 'مطور برمجيات', value: 3 },
-    { label: 'اخصائي مخ واعصاب', value: 4 }
-  ];
+  // Load from API
+  departments = signal<{ label: string; value: number }[]>([]);
+  jobs = signal<{ label: string; value: number }[]>([]);
+  loading = signal(true);
+
+  ngOnInit() {
+    this.loadLookupData();
+  }
+
+  loadLookupData() {
+    this.loading.set(true);
+
+    // Load departments
+    this.lookupService.getDepartments().subscribe({
+      next: (depts) => {
+        this.departments.set(depts);
+      },
+      error: (err) => console.error('Error loading departments:', err)
+    });
+
+    // Load jobs
+    this.lookupService.getJobs().subscribe({
+      next: (jobsList) => {
+        this.jobs.set(jobsList);
+        this.loading.set(false);
+      },
+      error: (err) => {
+        console.error('Error loading jobs:', err);
+        this.loading.set(false);
+      }
+    });
+  }
 
   onChange() {
     this.dataChange.emit(this.data);
@@ -53,7 +74,7 @@ export class EmploymentInfoStepComponent {
 
   onNext() {
     if (!this.data.departmentId || !this.data.jobId || !this.data.hireDate) {
-      return; 
+      return;
     }
     this.next.emit();
   }

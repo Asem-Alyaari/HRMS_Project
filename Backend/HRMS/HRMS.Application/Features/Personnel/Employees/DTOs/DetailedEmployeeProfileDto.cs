@@ -1,4 +1,6 @@
 using HRMS.Application.DTOs.Personnel;
+using HRMS.Application.DTOs.Performance;
+using HRMS.Application.DTOs.Payroll;
 
 namespace HRMS.Application.Features.Personnel.Employees.DTOs;
 
@@ -18,4 +20,8 @@ public class DetailedEmployeeProfileDto
     public List<DependentDto> Dependents { get; set; } = new();
     public List<EmployeeAddressDto> Addresses { get; set; } = new();
     public List<EmployeeDocumentDto> Documents { get; set; } = new();
+    
+    // Performance and Payroll integration
+    public List<EmployeeViolationDto> Violations { get; set; } = new();
+    public List<LoanDto> Loans { get; set; } = new();
 }

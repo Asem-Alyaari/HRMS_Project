@@ -1,0 +1,161 @@
+<div class="p-6 bg-slate-50/50 dark:bg-zinc-950/50 min-h-screen" dir="rtl">
+    <p-toast></p-toast>
+    <p-confirmDialog [style]="{width: '450px'}" [dir]="'rtl'"></p-confirmDialog>
+
+    <!-- Page Header -->
+    <div
+        class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4 bg-white dark:bg-zinc-900 p-6 rounded-3xl shadow-sm border border-slate-200 dark:border-zinc-800">
+        <div class="flex items-center gap-4">
+            <div
+                class="w-14 h-14 rounded-2xl bg-red-50 dark:bg-red-900/20 flex items-center justify-center text-red-600 dark:text-red-400 shadow-inner">
+                <i class="pi pi-exclamation-triangle text-2xl"></i>
+            </div>
+            <div>
+                <h1 class="text-2xl font-black text-slate-800 dark:text-white tracking-tight">إعدادات المخالفات</h1>
+                <p class="text-slate-500 dark:text-zinc-400 text-sm mt-1 font-medium">إدارة تصنيفات المخالفات ودرجات
+                    الخطورة المرتبطة بها</p>
+            </div>
+        </div>
+        <p-button label="إضافة نوع جديد" icon="pi pi-plus" (onClick)="openNew()"
+            styleClass="p-button-primary p-button-rounded px-6 shadow-lg shadow-blue-500/20"></p-button>
+    </div>
+
+    <!-- Data Table Card -->
+    <div
+        class="bg-white dark:bg-zinc-900 rounded-3xl shadow-sm border border-slate-200 dark:border-zinc-800 overflow-hidden">
+        <p-table [value]="violationTypes()" [rows]="10" [paginator]="true" [loading]="loading()"
+            styleClass="p-datatable-lg" [rowHover]="true" [dir]="'rtl'"
+            currentPageReportTemplate="عرض {first} إلى {last} من أصل {totalRecords} نوع" [showCurrentPageReport]="true">
+
+            <ng-template pTemplate="header">
+                <tr class="bg-slate-50/50 dark:bg-zinc-800/50 text-slate-700 dark:text-zinc-300">
+                    <th class="w-20 py-4 px-6 text-right font-bold"># ID</th>
+                    <th class="py-4 px-6 text-right font-bold">مسمى المخالفة</th>
+                    <th class="text-center py-4 px-6 font-bold w-64">درجة الخطورة</th>
+                    <th class="w-40 py-4 px-6 text-center font-bold">الإجراءات</th>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="body" let-item>
+                <tr
+                    class="border-b border-slate-100 dark:border-zinc-800 transition-all hover:bg-slate-50/80 dark:hover:bg-zinc-800/30">
+                    <td class="py-4 px-6 font-mono text-slate-400">{{item.violationTypeId}}</td>
+                    <td class="py-4 px-6">
+                        <span
+                            class="font-bold text-slate-700 dark:text-zinc-200 text-lg">{{item.violationNameAr}}</span>
+                    </td>
+                    <td class="text-center py-4 px-6">
+                        <div *ngIf="item.severityLevel"
+                            class="inline-flex items-center gap-2 px-4 py-2 rounded-2xl text-[10px] font-bold shadow-sm border"
+                            [ngClass]="{
+                                'bg-red-50 text-red-700 border-red-100 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800': item.severityLevel == 1,
+                                'bg-orange-50 text-orange-700 border-orange-100 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-800': item.severityLevel == 2,
+                                'bg-amber-50 text-amber-700 border-amber-100 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800': item.severityLevel == 3,
+                                'bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800': item.severityLevel >= 4
+                            }">
+                            <span class="w-2 h-2 rounded-full bg-current animate-pulse"></span>
+                            {{getSeverityLabel(item.severityLevel)}}
+                        </div>
+                        <span *ngIf="!item.severityLevel" class="text-slate-400 italic text-[10px]">غير محدد</span>
+                    </td>
+                    <td class="py-4 px-6">
+                        <div class="flex gap-2 justify-center">
+                            <p-button icon="pi pi-pencil" (onClick)="editType(item)"
+                                styleClass="p-button-rounded p-button-info p-button-text hover:bg-info-50"
+                                pTooltip="تعديل"></p-button>
+                            <p-button icon="pi pi-trash" (onClick)="deleteType(item.violationTypeId)"
+                                styleClass="p-button-rounded p-button-danger p-button-text hover:bg-danger-50"
+                                pTooltip="حذف"></p-button>
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td colspan="4" class="text-center py-20">
+                        <div class="flex flex-col items-center justify-center text-slate-400">
+                            <i class="pi pi-inbox text-5xl mb-4 opacity-20"></i>
+                            <p class="text-lg font-medium">لا توجد سجلات حالياً</p>
+                            <p class="text-sm">قم بإضافة نوع جديد للبدء</p>
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+</div>
+
+<!-- Modal Dialog -->
+<p-dialog [(visible)]="displayDialog" [style]="{width: '500px'}"
+    [header]="newType.violationTypeId ? 'تعديل تفاصيل المخالفة' : 'إضافة نوع مخالفة جديد'" [modal]="true"
+    class="p-fluid" [dir]="'rtl'" [draggable]="false" [resizable]="false">
+
+    <div class="flex flex-col gap-6 py-4">
+        <div class="field">
+            <label class="block text-sm font-bold text-slate-700 dark:text-zinc-300 mb-2 text-right">اسم المخالفة
+                (باللغة العربية)</label>
+            <div class="relative">
+                <i class="pi pi-tag absolute right-3 top-3 text-slate-400"></i>
+                <input type="text" pInputText [(ngModel)]="newType.violationNameAr"
+                    class="w-full pr-10 py-3 rounded-xl border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                    placeholder="مثال: التأخر عن العمل بدون عذر" />
+            </div>
+            <small class="text-red-500 font-medium mt-1 flex items-center gap-1"
+                *ngIf="submitted() && !newType.violationNameAr">
+                <i class="pi pi-info-circle text-xs"></i> يرجى إدخال اسم المخالفة
+            </small>
+        </div>
+
+        <div class="field">
+            <label class="block text-sm font-bold text-slate-700 dark:text-zinc-300 mb-2 text-right">تصنيف درجة
+                الخطورة</label>
+            <p-select [options]="severityOptions" [(ngModel)]="newType.severityLevel" optionLabel="label"
+                optionValue="value" placeholder="اختر الدرجة المناسبة" appendTo="body" class="w-full custom-select"
+                panelStyleClass="shadow-2xl border-none mt-2 rounded-xl">
+                <ng-template pTemplate="selectedItem" let-selectedOption>
+                    <div class="flex items-center gap-2" *ngIf="selectedOption">
+                        <span
+                            [class]="'w-3 h-3 rounded-full ' + (selectedOption.value == 1 ? 'bg-red-500' : selectedOption.value == 2 ? 'bg-orange-500' : selectedOption.value == 3 ? 'bg-amber-500' : 'bg-emerald-500')"></span>
+                        <span class="font-bold text-sm">{{selectedOption.label}}</span>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="item" let-option>
+                    <div class="flex items-center gap-3 py-1">
+                        <span
+                            [class]="'w-4 h-4 rounded-full ' + (option.value == 1 ? 'bg-red-500' : option.value == 2 ? 'bg-orange-500' : option.value == 3 ? 'bg-amber-500' : 'bg-emerald-500')"></span>
+                        <div class="flex flex-col text-right">
+                            <span class="font-bold text-sm">{{option.label}}</span>
+                        </div>
+                    </div>
+                </ng-template>
+            </p-select>
+        </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+        <div class="flex gap-3 justify-end pt-4">
+            <p-button label="إلغاء الأمر" icon="pi pi-times" (onClick)="displayDialog.set(false)"
+                styleClass="p-button-text p-button-secondary font-bold"></p-button>
+            <p-button label="حفظ التغييرات" icon="pi pi-check" (onClick)="save()"
+                styleClass="p-button-primary px-8 rounded-xl shadow-lg shadow-blue-500/20 font-bold"></p-button>
+        </div>
+    </ng-template>
+</p-dialog>
+
+<style>
+    :host ::ng-deep .p-datatable .p-datatable-thead>tr>th {
+        background-color: rgba(248, 250, 252, 0.5) !important;
+        border-bottom: 1px solid #f1f5f9 !important;
+    }
+
+    :host ::ng-deep .dark .p-datatable .p-datatable-thead>tr>th {
+        background-color: rgba(39, 39, 42, 0.5) !important;
+        border-bottom: 1px solid #27272a !important;
+    }
+
+    :host ::ng-deep .custom-select .p-select {
+        border-radius: 0.75rem !important;
+        border-color: #e2e8f0 !important;
+    }
+</style>

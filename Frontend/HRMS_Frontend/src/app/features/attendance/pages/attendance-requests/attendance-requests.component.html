@@ -1,0 +1,109 @@
+<div class="p-4 flex flex-col gap-6 max-w-4xl mx-auto">
+    <h1 class="text-2xl font-bold text-gray-800 dark:text-white mb-2">تقديم طلبات الحضور</h1>
+
+    <p-card class="shadow-sm">
+        <p-tabs [value]="0">
+            <p-tablist>
+                <p-tab [value]="0">طلب عمل إضافي</p-tab>
+                <p-tab [value]="1">تبديل مناوبة</p-tab>
+                <p-tab [value]="2">طلب استئذان</p-tab>
+            </p-tablist>
+
+            <p-tabpanels>
+                <!-- Overtime Form -->
+                <p-tabpanel [value]="0">
+                    <form [formGroup]="overtimeForm" (ngSubmit)="submitOvertime()" class="flex flex-col gap-4 mt-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="flex flex-col gap-2">
+                                <label>التاريخ</label>
+                                <p-datepicker formControlName="date"></p-datepicker>
+                            </div>
+                            <div class="flex flex-col gap-2">
+                                <label>وقت البدء</label>
+                                <p-datepicker formControlName="startTime" [timeOnly]="true"></p-datepicker>
+                            </div>
+                            <div class="flex flex-col gap-2">
+                                <label>وقت الانتهاء</label>
+                                <p-datepicker formControlName="endTime" [timeOnly]="true"></p-datepicker>
+                            </div>
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <label>السبب</label>
+                            <textarea pTextarea formControlName="reason" rows="3"></textarea>
+                        </div>
+                        <div class="flex justify-end mt-2">
+                            <p-button label="إرسال الطلب" icon="pi pi-send" type="submit"
+                                [loading]="loading()"></p-button>
+                        </div>
+                    </form>
+                </p-tabpanel>
+
+                <!-- Swap Form -->
+                <p-tabpanel [value]="1">
+                    <form [formGroup]="swapForm" (ngSubmit)="submitSwap()" class="flex flex-col gap-4 mt-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="flex flex-col gap-2">
+                                <label>تاريخ مناوبتي</label>
+                                <p-datepicker formControlName="requestDate"></p-datepicker>
+                            </div>
+                            <div class="flex flex-col gap-2">
+                                <label>الموظف البديل</label>
+                                <p-select [options]="employees()" formControlName="targetEmployeeId"
+                                    optionLabel="fullName" optionValue="employeeId" [filter]="true"
+                                    placeholder="اختر الموظف البديل"></p-select>
+                            </div>
+                            <div class="flex flex-col gap-2">
+                                <label>تاريخ مناوبة البديل</label>
+                                <p-datepicker formControlName="targetDate"></p-datepicker>
+                            </div>
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <label>السبب</label>
+                            <textarea pTextarea formControlName="reason" rows="3"></textarea>
+                        </div>
+                        <div class="flex justify-end mt-2">
+                            <p-button label="إرسال طلب التبديل" icon="pi pi-sync" type="submit"
+                                [loading]="loading()"></p-button>
+                        </div>
+                    </form>
+                </p-tabpanel>
+
+                <!-- Permission Form -->
+                <p-tabpanel [value]="2">
+                    <form [formGroup]="permissionForm" (ngSubmit)="submitPermission()" class="flex flex-col gap-4 mt-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="flex flex-col gap-2">
+                                <label>التاريخ</label>
+                                <p-datepicker formControlName="date"></p-datepicker>
+                            </div>
+                            <div class="flex flex-col gap-2">
+                                <label>نوع الاستئذان</label>
+                                <p-select
+                                    [options]="[{label:'شخصي', value:'Personal'}, {label:'مرضي', value:'Medical'}, {label:'عمل', value:'Work'}]"
+                                    formControlName="type" optionLabel="label" optionValue="value"></p-select>
+                            </div>
+                            <div class="flex flex-col gap-2">
+                                <label>من الساعة</label>
+                                <p-datepicker formControlName="startTime" [timeOnly]="true"></p-datepicker>
+                            </div>
+                            <div class="flex flex-col gap-2">
+                                <label>إلى الساعة</label>
+                                <p-datepicker formControlName="endTime" [timeOnly]="true"></p-datepicker>
+                            </div>
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <label>السبب</label>
+                            <textarea pTextarea formControlName="reason" rows="3"></textarea>
+                        </div>
+                        <div class="flex justify-end mt-2">
+                            <p-button label="تقديم الاستئذان" icon="pi pi-clock" type="submit"
+                                [loading]="loading()"></p-button>
+                        </div>
+                    </form>
+                </p-tabpanel>
+            </p-tabpanels>
+        </p-tabs>
+    </p-card>
+</div>
+
+<p-toast></p-toast>

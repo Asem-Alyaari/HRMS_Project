@@ -1,0 +1,84 @@
+<div class="card p-6 bg-white dark:bg-zinc-900 rounded-3xl shadow-sm border border-slate-100 dark:border-zinc-800"
+    dir="rtl">
+    <p-toast></p-toast>
+
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+        <div class="flex items-center gap-3">
+            <div
+                class="w-12 h-12 rounded-2xl bg-purple-50 dark:bg-purple-900/20 flex items-center justify-center text-purple-600 dark:text-purple-400">
+                <i class="pi pi-cog text-xl"></i>
+            </div>
+            <div>
+                <h1 class="text-xl font-bold text-slate-800 dark:text-zinc-100">إعدادات نظام الإجازات</h1>
+                <p class="text-slate-500 dark:text-zinc-400 text-xs mt-1">تكوين القواعد والسياسات العامة للإجازات</p>
+            </div>
+        </div>
+
+        <div class="flex gap-2">
+            <button pButton icon="pi pi-refresh" (click)="loadSettings()"
+                class="p-button-outlined p-button-rounded p-button-secondary" pTooltip="تحديث البيانات"></button>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <p-table [value]="settings()" dataKey="settingId" editMode="row" [loading]="loading()"
+        styleClass="p-datatable-sm p-datatable-gridlines" responsiveLayout="scroll">
+
+        <ng-template pTemplate="header">
+            <tr class="bg-slate-50 dark:bg-zinc-950 text-slate-700 dark:text-zinc-300 text-sm">
+                <th style="width: 25%">مفتاح الإعداد</th>
+                <th style="width: 35%">الوصف</th>
+                <th style="width: 25%">القيمة</th>
+                <th style="width: 15%" class="text-center">تعديل</th>
+            </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-setting let-editing="editing" let-ri="rowIndex">
+            <tr [pEditableRow]="setting" class="transition-colors hover:bg-slate-50 dark:hover:bg-zinc-800/50">
+                <td>
+                    <span
+                        class="font-mono text-sm text-slate-600 dark:text-zinc-400 bg-slate-100 dark:bg-zinc-800 px-2 py-1 rounded">
+                        {{setting.settingKey}}
+                    </span>
+                </td>
+                <td class="text-sm text-slate-600 dark:text-zinc-300">
+                    {{setting.description}}
+                </td>
+                <td>
+                    <p-cellEditor>
+                        <ng-template pTemplate="input">
+                            <input pInputText type="text" [(ngModel)]="setting.settingValue"
+                                class="w-full p-inputtext-sm" required>
+                        </ng-template>
+                        <ng-template pTemplate="output">
+                            <span class="font-bold text-blue-600 dark:text-blue-400">{{setting.settingValue}}</span>
+                        </ng-template>
+                    </p-cellEditor>
+                </td>
+                <td class="text-center">
+                    <div class="flex items-center justify-center gap-2">
+                        <button *ngIf="!editing" pButton pRipple type="button" pInitEditableRow icon="pi pi-pencil"
+                            (click)="onRowEditInit(setting)"
+                            class="p-button-rounded p-button-text p-button-secondary p-button-sm"></button>
+
+                        <button *ngIf="editing" pButton pRipple type="button" pSaveEditableRow icon="pi pi-check"
+                            (click)="onRowEditSave(setting)"
+                            class="p-button-rounded p-button-text p-button-success p-button-sm"></button>
+
+                        <button *ngIf="editing" pButton pRipple type="button" pCancelEditableRow icon="pi pi-times"
+                            (click)="onRowEditCancel(setting, ri)"
+                            class="p-button-rounded p-button-text p-button-danger p-button-sm"></button>
+                    </div>
+                </td>
+            </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+            <tr>
+                <td colspan="4" class="text-center py-8 text-slate-500">لا توجد إعدادات متاحة</td>
+            </tr>
+        </ng-template>
+
+    </p-table>
+</div>

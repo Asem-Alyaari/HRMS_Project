@@ -1,0 +1,96 @@
+<div class="p-4 flex flex-col gap-6">
+    <h1 class="text-2xl font-bold text-gray-800 dark:text-white mb-2">لوحة تحكم الحضور والانصراف</h1>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4" *ngIf="liveStatus()">
+        <p-card class="shadow-sm border-none">
+            <div class="flex flex-col items-center">
+                <span class="text-gray-500 text-sm">إجمالي الموظفين</span>
+                <span class="text-3xl font-bold text-blue-600">{{liveStatus()?.totalEmployees}}</span>
+            </div>
+        </p-card>
+        <p-card class="shadow-sm border-none border-b-4 border-green-500">
+            <div class="flex flex-col items-center">
+                <span class="text-gray-500 text-sm">حاضر الآن</span>
+                <span class="text-3xl font-bold text-green-600">{{liveStatus()?.presentCount}}</span>
+            </div>
+        </p-card>
+        <p-card class="shadow-sm border-none border-b-4 border-red-500">
+            <div class="flex flex-col items-center">
+                <span class="text-gray-500 text-sm">غائب</span>
+                <span class="text-3xl font-bold text-red-600">{{liveStatus()?.absentCount}}</span>
+            </div>
+        </p-card>
+        <p-card class="shadow-sm border-none border-b-4 border-orange-500">
+            <div class="flex flex-col items-center">
+                <span class="text-gray-500 text-sm">تأخير</span>
+                <span class="text-3xl font-bold text-orange-600">{{liveStatus()?.lateCount}}</span>
+            </div>
+        </p-card>
+        <p-card class="shadow-sm border-none border-b-4 border-blue-400">
+            <div class="flex flex-col items-center">
+                <span class="text-gray-500 text-sm">في إجازة</span>
+                <span class="text-3xl font-bold text-blue-500">{{liveStatus()?.onLeaveCount}}</span>
+            </div>
+        </p-card>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Recent Punches -->
+        <p-card header="آخر عمليات التبصيم" class="shadow-sm">
+            <p-table [value]="liveStatus()?.recentPunches || []" [rows]="10" styleClass="p-datatable-sm">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>الموظف</th>
+                        <th>الوقت</th>
+                        <th>النوع</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-punch>
+                    <tr>
+                        <td>{{punch.employeeName}}</td>
+                        <td>{{punch.time | date:'shortTime'}}</td>
+                        <td>
+                            <p-tag [value]="getTypeLabel(punch.type)" [severity]="getTypeSeverity(punch.type)"></p-tag>
+                        </td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="3" class="text-center p-4">لا توجد عمليات تبصيم حديثة</td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </p-card>
+
+        <!-- Exceptions -->
+        <p-card header="الاستثناءات والمشاكل" class="shadow-sm">
+            <p-table [value]="exceptions()" [rows]="10" styleClass="p-datatable-sm">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>الموظف</th>
+                        <th>التاريخ</th>
+                        <th>نوع الاستثناء</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-ex>
+                    <tr>
+                        <td>{{ex.employeeName}}</td>
+                        <td>{{ex.date | date:'shortDate'}}</td>
+                        <td>
+                            <p-tag [value]="ex.exceptionType" severity="danger"></p-tag>
+                        </td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="3" class="text-center p-4">لا توجد استثناءات معلقة</td>
+                    </tr>
+                </ng-template>
+            </p-table>
+            <div class="mt-4 flex justify-end">
+                <p-button label="عرض الكل" icon="pi pi-external-link" severity="secondary" size="small"></p-button>
+            </div>
+        </p-card>
+    </div>
+</div>

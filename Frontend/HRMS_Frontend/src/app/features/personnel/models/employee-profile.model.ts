@@ -1,13 +1,13 @@
-import { 
-    Address, 
-    BankAccount, 
-    Certification, 
-    Contract, 
-    Dependent, 
-    EmergencyContact, 
-    EmployeeDocument, 
-    Experience, 
-    Qualification 
+import {
+    Address,
+    BankAccount,
+    Certification,
+    Contract,
+    Dependent,
+    EmergencyContact,
+    EmployeeDocument,
+    Experience,
+    Qualification
 } from './sub-models';
 
 /**
@@ -16,7 +16,7 @@ import {
 export interface CoreProfile {
     employeeId: number;
     employeeNumber: string;
-    
+
     // Names
     firstNameAr?: string;
     secondNameAr?: string;
@@ -24,7 +24,7 @@ export interface CoreProfile {
     hijriLastNameAr?: string | null;
     fullNameAr: string;
     fullNameEn: string;
-    
+
     // Personal
     birthDate?: Date | string;
     gender?: string;
@@ -35,7 +35,7 @@ export interface CoreProfile {
     nationalId?: string;
     maritalStatus?: string;
     profilePicturePath?: string;
-    
+
     // Job
     departmentName?: string;
     deptId?: number;
@@ -75,4 +75,6 @@ export interface EmployeeProfile {
     dependents?: Dependent[];
     addresses?: Address[];
     documents?: EmployeeDocument[];
+    violations?: any[];
+    loans?: any[];
 }

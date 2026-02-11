@@ -1,0 +1,90 @@
+<div class="card p-6 bg-white dark:bg-zinc-900 rounded-3xl shadow-sm border border-slate-100 dark:border-zinc-800"
+    dir="rtl">
+    <p-toast></p-toast>
+    <p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
+
+    <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+        <div>
+            <h1 class="text-xl font-bold text-slate-800 dark:text-zinc-100">فترات تقييم الأداء</h1>
+            <p class="text-slate-500 dark:text-zinc-400 text-xs mt-1">إعداد وإدارة دورات التقييم الدورية للموظفين</p>
+        </div>
+        <p-button label="فترة جديدة" icon="pi pi-plus" (onClick)="openNew()"
+            styleClass="p-button-primary p-button-rounded"></p-button>
+    </div>
+
+    <p-table [value]="cycles()" [rows]="10" [paginator]="true" [loading]="loading()"
+        styleClass="p-datatable-sm p-datatable-gridlines" [rowHover]="true">
+
+        <ng-template pTemplate="header">
+            <tr class="bg-slate-50 dark:bg-zinc-950 text-slate-700 dark:text-zinc-300 text-sm">
+                <th class="w-20">ID</th>
+                <th>اسم الفترة</th>
+                <th class="text-center">تاريخ البدء</th>
+                <th class="text-center">تاريخ الانتهاء</th>
+                <th class="text-center">الحالة</th>
+                <th class="w-20">العمليات</th>
+            </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-item>
+            <tr class="transition-colors hover:bg-slate-50 dark:hover:bg-zinc-800/50">
+                <td>{{item.cycleId}}</td>
+                <td class="font-medium">{{item.cycleNameAr}}</td>
+                <td class="text-center">{{item.startDate | date:'dd/MM/yyyy'}}</td>
+                <td class="text-center">{{item.endDate | date:'dd/MM/yyyy'}}</td>
+                <td class="text-center">
+                    <p-tag [value]="getStatusLabel(item.status)" [severity]="getStatusSeverity(item.status)"></p-tag>
+                </td>
+                <td>
+                    <div class="flex gap-2 justify-center">
+                        <p-button icon="pi pi-pencil" (onClick)="editCycle(item)"
+                            styleClass="p-button-text p-button-sm p-button-info"></p-button>
+                        <p-button icon="pi pi-trash" (onClick)="deleteCycle(item.cycleId)"
+                            styleClass="p-button-text p-button-sm p-button-danger"></p-button>
+                    </div>
+                </td>
+            </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+            <tr>
+                <td colspan="6" class="text-center py-8 text-slate-400">لا توجد فترات تقييم معرفة</td>
+            </tr>
+        </ng-template>
+    </p-table>
+</div>
+
+<p-dialog [(visible)]="displayDialog" [style]="{width: '450px'}"
+    [header]="newCycle.cycleId ? 'تعديل فترة تقييم' : 'إضافة فترة تقييم جديدة'" [modal]="true" class="p-fluid">
+    <ng-template pTemplate="content">
+        <div class="field mb-4">
+            <label class="block text-sm font-medium mb-1">اسم الفترة (مثلاً: تقييم الربع الأول 2025)</label>
+            <input type="text" pInputText [(ngModel)]="newCycle.cycleNameAr" class="w-full" />
+            <small class="p-error block" *ngIf="submitted() && !newCycle.cycleNameAr">الاسم مطلوب</small>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4 mb-4">
+            <div class="field">
+                <label class="block text-sm font-medium mb-1">تاريخ البدء</label>
+                <p-datepicker [(ngModel)]="newCycle.startDate" appendTo="body" dateFormat="dd/mm/yy"></p-datepicker>
+                <small class="p-error block" *ngIf="submitted() && !newCycle.startDate">التاريخ مطلوب</small>
+            </div>
+            <div class="field">
+                <label class="block text-sm font-medium mb-1">تاريخ الانتهاء</label>
+                <p-datepicker [(ngModel)]="newCycle.endDate" appendTo="body" dateFormat="dd/mm/yy"></p-datepicker>
+                <small class="p-error block" *ngIf="submitted() && !newCycle.endDate">التاريخ مطلوب</small>
+            </div>
+        </div>
+
+        <div class="field mb-4">
+            <label class="block text-sm font-medium mb-1">الحالة</label>
+            <p-select [options]="statuses" [(ngModel)]="newCycle.status" optionLabel="label" optionValue="value"
+                class="w-full"></p-select>
+        </div>
+    </ng-template>
+    <ng-template pTemplate="footer">
+        <p-button label="إلغاء" icon="pi pi-times" (onClick)="displayDialog.set(false)"
+            styleClass="p-button-text"></p-button>
+        <p-button label="حفظ" icon="pi pi-check" (onClick)="save()" styleClass="p-button-primary"></p-button>
+    </ng-template>
+</p-dialog>

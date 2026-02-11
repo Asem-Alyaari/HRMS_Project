@@ -1,0 +1,144 @@
+<div class="p-6" dir="rtl">
+    <p-toast></p-toast>
+
+    <div class="flex items-center gap-3 mb-6">
+        <div
+            class="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-600 dark:text-blue-400">
+            <i class="pi pi-file-pdf text-xl"></i>
+        </div>
+        <div>
+            <h1 class="text-xl font-bold text-slate-800 dark:text-zinc-100">تقارير الإجازات المتقدمة</h1>
+            <p class="text-slate-500 dark:text-zinc-400 text-xs mt-1">تقارير المعاملات، الرواتب، والتحليلات التفصيلية
+            </p>
+        </div>
+    </div>
+
+    <p-tabs value="0"
+        class="rounded-3xl overflow-hidden shadow-sm border border-slate-100 dark:border-zinc-800 bg-white dark:bg-zinc-900">
+        <p-tablist>
+            <p-tab value="0">تقرير المعاملات</p-tab>
+            <p-tab value="1">تقرير تكامل الرواتب</p-tab>
+        </p-tablist>
+
+        <p-tabpanels>
+            <!-- Transaction Report Tab -->
+            <p-tabpanel value="0">
+                <div class="p-4">
+                    <!-- Filters -->
+                    <div
+                        class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6 p-4 bg-slate-50 dark:bg-zinc-800/50 rounded-2xl">
+                        <div class="flex flex-col gap-1">
+                            <label class="text-xs font-medium text-slate-500">من تاريخ</label>
+                            <p-datepicker [(ngModel)]="transactionFilters.fromDate" [showIcon]="true" appendTo="body"
+                                styleClass="w-full"></p-datepicker>
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <label class="text-xs font-medium text-slate-500">إلى تاريخ</label>
+                            <p-datepicker [(ngModel)]="transactionFilters.toDate" [showIcon]="true" appendTo="body"
+                                styleClass="w-full"></p-datepicker>
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <label class="text-xs font-medium text-slate-500">الحالة</label>
+                            <p-select [options]="statusOptions" [(ngModel)]="transactionFilters.status"
+                                styleClass="w-full"></p-select>
+                        </div>
+                        <div class="flex items-end gap-2">
+                            <p-button label="عرض التقرير" icon="pi pi-search" (onClick)="loadTransactionReport()"
+                                [loading]="loadingTransactions()"></p-button>
+                            <p-button icon="pi pi-file-excel" (onClick)="exportToExcel('transactions')"
+                                styleClass="p-button-outlined p-button-success"></p-button>
+                        </div>
+                    </div>
+
+                    <p-table [value]="transactions()" [loading]="loadingTransactions()"
+                        styleClass="p-datatable-sm p-datatable-gridlines" [paginator]="true" [rows]="10"
+                        responsiveLayout="scroll">
+                        <ng-template pTemplate="header">
+                            <tr class="bg-slate-50 dark:bg-zinc-950 text-slate-700 dark:text-zinc-300 text-sm">
+                                <th>الموظف</th>
+                                <th>نوع الإجازة</th>
+                                <th class="text-center">من</th>
+                                <th class="text-center">إلى</th>
+                                <th class="text-center">الأيام</th>
+                                <th class="text-center">الحالة</th>
+                                <th>بواسطة</th>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-tx>
+                            <tr class="text-sm">
+                                <td>{{tx.employeeNameAr}}</td>
+                                <td>{{tx.leaveTypeNameAr}}</td>
+                                <td class="text-center">{{tx.startDate | date:'dd/MM/yyyy'}}</td>
+                                <td class="text-center">{{tx.endDate | date:'dd/MM/yyyy'}}</td>
+                                <td class="text-center font-bold text-blue-600">{{tx.totalDays}}</td>
+                                <td class="text-center">
+                                    <p-tag [value]="tx.status" [severity]="getStatusSeverity(tx.status)"
+                                        styleClass="text-[10px]"></p-tag>
+                                </td>
+                                <td>{{tx.approvedByName || '-'}}</td>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="emptymessage">
+                            <tr>
+                                <td colspan="7" class="text-center py-8 text-slate-400">لا توجد بيانات للمعايير المختارة
+                                </td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </div>
+            </p-tabpanel>
+
+            <!-- Payroll Report Tab -->
+            <p-tabpanel value="1">
+                <div class="p-4">
+                    <div class="flex flex-wrap gap-4 mb-6 p-4 bg-slate-50 dark:bg-zinc-800/50 rounded-2xl items-end">
+                        <div class="flex flex-col gap-1 w-32">
+                            <label class="text-xs font-medium text-slate-500">الشهر</label>
+                            <input type="number" pInputText [(ngModel)]="payrollMonth" min="1" max="12">
+                        </div>
+                        <div class="flex flex-col gap-1 w-32">
+                            <label class="text-xs font-medium text-slate-500">السنة</label>
+                            <input type="number" pInputText [(ngModel)]="payrollYear">
+                        </div>
+                        <p-button label="عرض التقرير" icon="pi pi-filter" (onClick)="loadPayrollReport()"
+                            [loading]="loadingPayroll()"></p-button>
+                        <p-button label="تصدير للرواتب" icon="pi pi-external-link" (onClick)="exportToExcel('payroll')"
+                            styleClass="p-button-outlined p-button-warning"></p-button>
+                    </div>
+
+                    <p-table [value]="payrollData()" [loading]="loadingPayroll()"
+                        styleClass="p-datatable-sm p-datatable-gridlines" responsiveLayout="scroll">
+                        <ng-template pTemplate="header">
+                            <tr class="bg-slate-50 dark:bg-zinc-950 text-slate-700 dark:text-zinc-300 text-sm">
+                                <th>الموظف</th>
+                                <th>نوع الإجازة</th>
+                                <th class="text-center">الأيام</th>
+                                <th class="text-center">هل تخصم؟</th>
+                                <th class="text-center">مبلغ الخصم التقديري</th>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-row>
+                            <tr class="text-sm">
+                                <td>{{row.employeeNameAr}}</td>
+                                <td>{{row.leaveTypeNameAr}}</td>
+                                <td class="text-center font-bold">{{row.totalDays}}</td>
+                                <td class="text-center">
+                                    <i class="pi"
+                                        [ngClass]="row.isDeductible ? 'pi-check-circle text-red-500' : 'pi-minus text-slate-300'"></i>
+                                </td>
+                                <td class="text-center font-mono text-slate-600">{{row.deductionAmount |
+                                    number:'1.2-2'}}
+                                </td>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="emptymessage">
+                            <tr>
+                                <td colspan="5" class="text-center py-8 text-slate-400">لا توجد بيانات لهذا الشهر</td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </div>
+            </p-tabpanel>
+        </p-tabpanels>
+    </p-tabs>
+</div>

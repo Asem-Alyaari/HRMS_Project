@@ -1,0 +1,196 @@
+<div class="p-4 md:p-8 bg-slate-50/50 dark:bg-zinc-950/50 min-h-screen" dir="rtl">
+    <p-toast></p-toast>
+
+    <!-- Unified Premium Header -->
+    <div
+        class="relative overflow-hidden bg-white dark:bg-zinc-900 rounded-[3rem] shadow-2xl shadow-slate-200/50 dark:shadow-none border border-white dark:border-zinc-800 p-8 mb-10">
+        <div class="absolute -right-20 -top-20 w-64 h-64 bg-blue-500/5 rounded-full blur-3xl"></div>
+        <div class="absolute -left-20 -bottom-20 w-64 h-64 bg-emerald-500/5 rounded-full blur-3xl"></div>
+
+        <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div class="flex items-center gap-6">
+                <div
+                    class="w-20 h-20 rounded-[2.5rem] bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center text-white shadow-lg shadow-blue-500/30">
+                    <i class="pi pi-users text-4xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-4xl font-black text-slate-800 dark:text-white tracking-tight mb-1">كشف التحضير
+                        اليومي</h1>
+                    <div class="flex items-center gap-2 text-slate-400 dark:text-zinc-500 font-medium">
+                        <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+                        إدارة الحضور والانصراف المباشر لجميع الموظفين
+                    </div>
+                </div>
+            </div>
+
+            <div
+                class="flex items-center gap-4 bg-slate-50 dark:bg-zinc-800/50 p-3 rounded-[2rem] border border-slate-100 dark:border-zinc-800">
+                <i class="pi pi-calendar text-blue-500 mr-2"></i>
+                <p-datepicker [(ngModel)]="selectedDate" (onSelect)="loadFullSheet()" [showIcon]="false"
+                    dateFormat="yy-mm-dd"
+                    styleClass="border-none bg-transparent font-black text-slate-700 dark:text-white cursor-pointer px-2">
+                </p-datepicker>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div
+        class="bg-white dark:bg-zinc-900 rounded-[3rem] shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-zinc-800 overflow-hidden">
+
+        <!-- Search & Quick Filters -->
+        <div
+            class="p-8 border-b border-slate-50 dark:border-zinc-800 flex flex-col md:flex-row justify-between items-center gap-6 bg-slate-50/20">
+            <div class="relative w-full md:w-1/3">
+                <i class="pi pi-search absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 z-10"></i>
+                <input type="text" pInputText placeholder="بحث باسم الموظف أو الرقم الوظيفي..."
+                    [(ngModel)]="searchQuery"
+                    class="w-full rounded-2xl py-4 pr-12 pl-4 border-2 border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 focus:ring-4 focus:ring-blue-500/10 font-bold transition-all" />
+            </div>
+
+            <div class="flex gap-3">
+                <button (click)="loadFullSheet()" [disabled]="loading()"
+                    class="flex items-center gap-2 px-6 py-3 rounded-xl bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-600 dark:text-zinc-300 font-bold hover:bg-slate-50 transition-all shadow-sm">
+                    <i class="pi pi-refresh" [class.pi-spin]="loading()"></i>
+                    <span>تحديث البيانات</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <p-table [value]="displayData()" [rows]="10" [paginator]="true" [loading]="loading()"
+            styleClass="p-datatable-premium" [rowHover]="true"
+            currentPageReportTemplate="عرض {first} إلى {last} من أصل {totalRecords} موظف">
+
+            <ng-template pTemplate="header">
+                <tr class="bg-slate-50/30 dark:bg-zinc-800/30">
+                    <th class="py-6 px-8 text-right font-black text-slate-400 w-24"># ID</th>
+                    <th class="py-6 px-8 text-right font-black text-slate-700 dark:text-zinc-200">بيانات الموظف</th>
+                    <th class="py-6 px-8 text-center font-black text-slate-700 dark:text-zinc-200">الوردية المجدولة</th>
+                    <th class="py-6 px-8 text-center font-black text-slate-700 dark:text-zinc-200">حالة اليوم</th>
+                    <th class="py-6 px-8 text-center font-black text-slate-700 dark:text-zinc-200">إجراءات التحضير</th>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="body" let-emp>
+                <tr
+                    class="border-b border-slate-50 dark:border-zinc-800 transition-colors hover:bg-slate-50/50 dark:hover:bg-zinc-800/30 group">
+                    <td class="py-6 px-8 font-mono text-slate-400 text-xs">{{emp.employeeId}}</td>
+                    <td class="py-6 px-8">
+                        <div class="flex items-center gap-4">
+                            <div class="relative">
+                                <div
+                                    class="w-14 h-14 rounded-2xl bg-gradient-to-br from-slate-100 to-slate-200 dark:from-zinc-800 dark:to-zinc-700 flex items-center justify-center font-black text-slate-500 dark:text-zinc-400 shadow-inner">
+                                    {{emp.fullNameAr?.charAt(0) || 'E'}}
+                                </div>
+                                <div *ngIf="emp.clockIn"
+                                    class="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 border-2 border-white dark:border-zinc-900 rounded-full">
+                                </div>
+                            </div>
+                            <div class="flex flex-col">
+                                <span
+                                    class="font-black text-slate-800 dark:text-white text-lg group-hover:text-blue-600 transition-colors">{{emp.fullNameAr
+                                    || emp.fullName}}</span>
+                                <span class="text-xs text-slate-400 font-bold tracking-tight">{{emp.jobTitleAr ||
+                                    'موظف'}}</span>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="py-6 px-8 text-center">
+                        <div
+                            class="inline-flex flex-col items-center px-4 py-2 rounded-2xl bg-indigo-50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-900/30 min-w-32">
+                            <span
+                                class="text-[10px] font-black text-indigo-700 dark:text-indigo-400 uppercase tracking-widest">{{emp.shiftName
+                                || 'صباحية'}}</span>
+                            <span class="text-[10px] text-indigo-400 font-mono font-bold">08:00 - 16:00</span>
+                        </div>
+                    </td>
+                    <td class="py-6 px-8 text-center">
+                        <p-tag [value]="emp.status" [severity]="getStatusSeverity(emp.status)"
+                            styleClass="px-5 py-2 rounded-xl font-black text-[10px] uppercase tracking-wider shadow-sm"></p-tag>
+                    </td>
+                    <td class="py-6 px-8">
+                        <div class="flex justify-center gap-3">
+                            <!-- Punch IN -->
+                            <button (click)="togglePunch(emp.employeeId, 'IN')" [disabled]="emp.clockIn"
+                                class="h-12 flex items-center gap-2 px-6 rounded-2xl transition-all font-black text-sm relative overflow-hidden group/btn"
+                                [ngClass]="emp.clockIn 
+                                    ? 'bg-emerald-50 text-emerald-600 border border-emerald-100 cursor-default' 
+                                    : 'bg-white dark:bg-zinc-800 border-2 border-slate-100 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 hover:border-emerald-500 hover:text-emerald-500'">
+                                <i class="pi"
+                                    [ngClass]="emp.clockIn ? 'pi-check-circle' : 'pi-sign-in group-hover/btn:translate-x-1'"></i>
+                                <span>حضور</span>
+                                <span *ngIf="emp.clockIn" class="text-[10px] opacity-70 font-mono ml-2">{{emp.clockIn |
+                                    date:'HH:mm'}}</span>
+                            </button>
+
+                            <!-- Punch OUT -->
+                            <button (click)="togglePunch(emp.employeeId, 'OUT')"
+                                [disabled]="!emp.clockIn || emp.clockOut"
+                                class="h-12 flex items-center gap-2 px-6 rounded-2xl transition-all font-black text-sm border-2"
+                                [ngClass]="emp.clockOut 
+                                    ? 'bg-red-50 text-red-600 border-red-100 cursor-default' 
+                                    : (!emp.clockIn 
+                                        ? 'opacity-20 grayscale border-slate-100 cursor-not-allowed' 
+                                        : 'bg-white dark:bg-zinc-800 border-slate-100 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 hover:border-red-500 hover:text-red-500')">
+                                <i class="pi" [ngClass]="emp.clockOut ? 'pi-check-circle' : 'pi-sign-out'"></i>
+                                <span>انصراف</span>
+                                <span *ngIf="emp.clockOut" class="text-[10px] opacity-70 font-mono ml-2">{{emp.clockOut
+                                    | date:'HH:mm'}}</span>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td colspan="5" class="text-center py-40">
+                        <div class="flex flex-col items-center gap-5 opacity-10">
+                            <i class="pi pi-users text-8xl"></i>
+                            <span class="text-2xl font-black italic">لم يتم العثور على موظفين في هذا التاريخ</span>
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+</div>
+
+<style>
+    /* Table Premium Styling */
+    :host ::ng-deep .p-datatable-premium .p-datatable-header {
+        border: none !important;
+        background: transparent !important;
+    }
+
+    :host ::ng-deep .p-datatable-premium .p-paginator {
+        background: #f8fafc !important;
+        border: none !important;
+        padding: 2.5rem !important;
+        border-top: 1px solid #f1f5f9 !important;
+    }
+
+    :host ::ng-deep .dark .p-datatable-premium .p-paginator {
+        background: #09090b !important;
+        border-color: #18181b !important;
+    }
+
+    :host ::ng-deep .p-tag-success {
+        background: #ecfdf5 !important;
+        color: #059669 !important;
+        border: 1px solid #d1fae5 !important;
+    }
+
+    :host ::ng-deep .p-tag-info {
+        background: #eff6ff !important;
+        color: #2563eb !important;
+        border: 1px solid #dbeafe !important;
+    }
+
+    :host ::ng-deep .p-tag-secondary {
+        background: #f8fafc !important;
+        color: #64748b !important;
+        border: 1px solid #f1f5f9 !important;
+    }
+</style>

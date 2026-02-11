@@ -1,4 +1,5 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, inject, signal } from '@angular/core';
+import { LookupService } from '../../../../../core/services/lookup.service';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { InputNumberModule } from 'primeng/inputnumber';
@@ -22,27 +23,39 @@ import { CreateEmployeeDto } from '../../../models/create-employee.dto';
   templateUrl: './financial-info-step.component.html',
   styleUrls: ['./financial-info-step.component.scss']
 })
-export class FinancialInfoStepComponent {
+export class FinancialInfoStepComponent implements OnInit {
   @Input() data!: CreateEmployeeDto;
   @Output() dataChange = new EventEmitter<Partial<CreateEmployeeDto>>();
   @Output() prev = new EventEmitter<void>();
   @Output() submit = new EventEmitter<void>();
 
-  banks = [
-    { label: 'البنك الأهلي اليمني', value: 1 },
-    { label: 'بنك التضامن', value: 2 },
-    { label: 'بنك الكريمي', value: 3 }
-  ];
+  private lookupService = inject(LookupService);
+
+  // Use signal for banks
+  banks = signal<{ label: string; value: number }[]>([]);
+
+  ngOnInit() {
+    this.loadBanks();
+  }
+
+  loadBanks() {
+    this.lookupService.getBanks().subscribe({
+      next: (data) => {
+        this.banks.set(data);
+      },
+      error: (err) => console.error('Error loading banks:', err)
+    });
+  }
 
   onChange() {
     this.dataChange.emit(this.data);
   }
 
   get totalSalary(): number {
-    return (this.data.basicSalary || 0) + 
-           (this.data.housingAllowance || 0) + 
-           (this.data.transportAllowance || 0) + 
-           (this.data.medicalAllowance || 0);
+    return (this.data.basicSalary || 0) +
+      (this.data.housingAllowance || 0) +
+      (this.data.transportAllowance || 0) +
+      (this.data.medicalAllowance || 0);
   }
 
   onPrev() {
@@ -51,7 +64,7 @@ export class FinancialInfoStepComponent {
 
   onSubmit() {
     if (!this.data.basicSalary) {
-      return; 
+      return;
     }
     this.submit.emit();
   }

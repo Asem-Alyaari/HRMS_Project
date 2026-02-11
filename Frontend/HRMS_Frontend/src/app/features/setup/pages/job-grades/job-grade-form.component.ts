@@ -11,13 +11,31 @@ import { SetupService } from '../../services/setup.service';
 import { MessageService } from 'primeng/api';
 
 @Component({
-  selector: 'app-job-grade-form',
-  standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, InputTextModule, InputNumberModule, ButtonModule, FloatLabelModule, CheckboxModule],
-  template: `
+    selector: 'app-job-grade-form',
+    standalone: true,
+    imports: [CommonModule, FormsModule, ReactiveFormsModule, InputTextModule, InputNumberModule, ButtonModule, FloatLabelModule, CheckboxModule],
+    template: `
     <form [formGroup]="form" (ngSubmit)="save()" class="p-4" dir="rtl">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             
+            <!-- Grade Code -->
+            <div class="col-span-1">
+                <p-floatLabel>
+                    <input pInputText id="gradeCode" formControlName="gradeCode" class="w-full" />
+                    <label for="gradeCode">رمز الدرجة الوظيفية</label>
+                </p-floatLabel>
+                <small class="text-red-500" *ngIf="form.get('gradeCode')?.touched && form.get('gradeCode')?.invalid">رمز الدرجة مطلوب</small>
+            </div>
+
+            <!-- Grade Level -->
+            <div class="col-span-1">
+                <p-floatLabel>
+                    <p-inputNumber inputId="gradeLevel" formControlName="gradeLevel" [min]="1" styleClass="w-full" class="w-full" inputStyleClass="w-full"></p-inputNumber>
+                    <label for="gradeLevel">مستوى الدرجة (مثلاً: 1، 2، 3)</label>
+                </p-floatLabel>
+                <small class="text-red-500" *ngIf="form.get('gradeLevel')?.touched && form.get('gradeLevel')?.invalid">مستوى الدرجة يجب أن يكون 1 أو أكثر</small>
+            </div>
+
             <!-- Ar Name -->
             <div class="col-span-1">
                 <p-floatLabel>
@@ -76,17 +94,19 @@ export class JobGradeFormComponent implements OnInit {
         public config: DynamicDialogConfig,
         private setupService: SetupService,
         private messageService: MessageService
-    ) {}
+    ) { }
 
     ngOnInit() {
         this.isEdit = !!this.config.data?.jobGradeId;
         this.id = this.config.data?.jobGradeId;
 
         this.form = this.fb.group({
+            gradeCode: [this.config.data?.gradeCode || '', Validators.required],
+            gradeLevel: [this.config.data?.gradeLevel || null, [Validators.required, Validators.min(1)]],
             gradeNameAr: [this.config.data?.gradeNameAr || '', Validators.required],
-            gradeNameEn: [this.config.data?.gradeNameEn || ''],
-            minSalary: [this.config.data?.minSalary || 0],
-            maxSalary: [this.config.data?.maxSalary || 0],
+            gradeNameEn: [this.config.data?.gradeNameEn || '', Validators.required],
+            minSalary: [this.config.data?.minSalary || 0, [Validators.required, Validators.min(0)]],
+            maxSalary: [this.config.data?.maxSalary || 0, [Validators.required, Validators.min(0)]],
             isActive: [this.config.data?.isActive === undefined ? true : (this.config.data.isActive == 1 || this.config.data.isActive === true)]
         });
     }
@@ -103,12 +123,26 @@ export class JobGradeFormComponent implements OnInit {
         request.subscribe({
             next: () => {
                 this.loading = false;
-                this.messageService.add({severity:'success', summary:'نجاح', detail: 'تم الحفظ بنجاح'});
+                this.messageService.add({ severity: 'success', summary: 'نجاح', detail: 'تم الحفظ بنجاح' });
                 this.ref.close(true);
             },
-            error: () => {
+            error: (err) => {
                 this.loading = false;
-                this.messageService.add({severity:'error', summary:'خطأ', detail: 'حدث خطأ أثناء الحفظ'});
+                console.error('Error saving job grade:', err);
+
+                let errorMessage = 'حدث خطأ أثناء الحفظ';
+                if (err.error && err.error.message) {
+                    errorMessage = err.error.message;
+                }
+
+                this.messageService.add({ severity: 'error', summary: 'خطأ في البيانات', detail: errorMessage });
+
+                // Display individual validation errors if they exist
+                if (err.error && err.error.errors && Array.isArray(err.error.errors)) {
+                    err.error.errors.forEach((error: string) => {
+                        this.messageService.add({ severity: 'warn', summary: 'تنبيه', detail: error, life: 5000 });
+                    });
+                }
             }
         });
     }

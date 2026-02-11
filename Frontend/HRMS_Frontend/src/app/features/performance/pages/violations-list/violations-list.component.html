@@ -1,0 +1,114 @@
+<div class="card p-6 bg-white dark:bg-zinc-900 rounded-3xl shadow-sm border border-slate-100 dark:border-zinc-800"
+    dir="rtl">
+    <p-toast></p-toast>
+
+    <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-slate-800 dark:text-zinc-100">المخالفات الإدارية</h1>
+            <p class="text-slate-500 dark:text-zinc-400 text-sm mt-1">سجل المخالفات والجزاءات للموظفين</p>
+        </div>
+        <p-button label="تسجيل مخالفة" icon="pi pi-plus" (onClick)="openNew()"
+            styleClass="p-button-primary p-button-rounded"></p-button>
+    </div>
+
+    <p-table #dt [value]="violations()" [rows]="10" [paginator]="true" [loading]="loading()"
+        [globalFilterFields]="['employeeName', 'violationTypeNameAr', 'description']"
+        styleClass="p-datatable-sm p-datatable-gridlines" [rowHover]="true" responsiveLayout="scroll">
+
+        <ng-template pTemplate="header">
+            <tr class="bg-slate-50 dark:bg-zinc-950 text-slate-700 dark:text-zinc-300 text-sm">
+                <th pSortableColumn="violationId">رقم المخالفة <p-sortIcon field="violationId"></p-sortIcon></th>
+                <th pSortableColumn="employeeName">الموظف <p-sortIcon field="employeeName"></p-sortIcon></th>
+                <th pSortableColumn="violationTypeNameAr">نوع المخالفة <p-sortIcon
+                        field="violationTypeNameAr"></p-sortIcon></th>
+                <th pSortableColumn="violationDate">تاريخ المخالفة <p-sortIcon field="violationDate"></p-sortIcon></th>
+                <th pSortableColumn="actionNameAr">الإجراء المتخذ <p-sortIcon field="actionNameAr"></p-sortIcon></th>
+                <th>أيام الخصم</th>
+                <th>حالة التنفيذ</th>
+                <th>ملاحظات</th>
+            </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-violation>
+            <tr class="transition-colors hover:bg-slate-50 dark:hover:bg-zinc-800/50">
+                <td>{{violation.violationId}}</td>
+                <td class="font-medium">{{violation.employeeName}}</td>
+                <td>
+                    <p-tag [value]="violation.violationTypeNameAr" severity="warn"></p-tag>
+                </td>
+                <td>{{violation.violationDate | date:'dd/MM/yyyy'}}</td>
+                <td>
+                    <span *ngIf="violation.actionNameAr"
+                        class="text-blue-600 font-semibold">{{violation.actionNameAr}}</span>
+                    <span *ngIf="!violation.actionNameAr" class="text-slate-400 text-xs">لا يوجد</span>
+                </td>
+                <td>
+                    <span *ngIf="violation.deductionDays > 0" class="text-red-600 font-bold">{{violation.deductionDays}}
+                        يوم</span>
+                    <span *ngIf="!violation.deductionDays || violation.deductionDays == 0">-</span>
+                </td>
+                <td>
+                    <p-tag *ngIf="violation.isExecuted" value="منفذ" severity="success"></p-tag>
+                    <p-tag *ngIf="!violation.isExecuted" value="غير منفذ" severity="info"></p-tag>
+                </td>
+                <td class="text-sm text-slate-500 max-w-xs truncate" [title]="violation.description">
+                    {{violation.description}}</td>
+            </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+            <tr>
+                <td colspan="8" class="text-center py-8 text-slate-400">لا توجد مخالفات مسجلة</td>
+            </tr>
+        </ng-template>
+    </p-table>
+</div>
+
+<p-dialog [(visible)]="violationDialog" [style]="{width: '500px'}" header="تسجيل مخالفة جديدة" [modal]="true"
+    styleClass="p-fluid" [rtl]="true">
+    <ng-template pTemplate="content">
+        <div class="field mb-4">
+            <label class="block text-sm font-medium mb-1">الموظف</label>
+            <p-select [options]="employees()" [(ngModel)]="newViolation.employeeId" optionLabel="fullNameAr"
+                optionValue="employeeId" placeholder="اختر الموظف" [filter]="true" filterBy="fullNameAr" appendTo="body"
+                class="w-full">
+            </p-select>
+            <small class="p-error block mt-1" *ngIf="submitted() && !newViolation.employeeId">الموظف مطلوب</small>
+        </div>
+
+        <div class="field mb-4">
+            <label class="block text-sm font-medium mb-1">نوع المخالفة</label>
+            <p-select [options]="violationTypes()" [(ngModel)]="newViolation.violationTypeId"
+                optionLabel="violationNameAr" optionValue="violationTypeId" placeholder="اختر نوع المخالفة"
+                appendTo="body" class="w-full">
+            </p-select>
+            <small class="p-error block mt-1" *ngIf="submitted() && !newViolation.violationTypeId">نوع المخالفة
+                مطلوب</small>
+        </div>
+
+        <div class="field mb-4">
+            <label class="block text-sm font-medium mb-1">تاريخ المخالفة</label>
+            <p-datepicker [(ngModel)]="newViolation.dateOfViolation" dateFormat="dd/mm/yy" appendTo="body"
+                class="w-full"></p-datepicker>
+        </div>
+
+        <div class="field mb-4">
+            <label class="block text-sm font-medium mb-1">وصف المخالفة</label>
+            <textarea pTextarea [(ngModel)]="newViolation.description" rows="3" class="w-full"></textarea>
+            <small class="p-error block mt-1" *ngIf="submitted() && !newViolation.description">الوصف مطلوب</small>
+        </div>
+
+        <div class="field mb-4">
+            <label class="block text-sm font-medium mb-1">ملاحظات إضافية</label>
+            <textarea pTextarea [(ngModel)]="newViolation.notes" rows="2" class="w-full"></textarea>
+        </div>
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+        <div class="flex gap-2 justify-end">
+            <p-button label="إلغاء" icon="pi pi-times" (onClick)="hideDialog()" styleClass="p-button-text"></p-button>
+            <p-button label="حفظ" icon="pi pi-check" (onClick)="saveViolation()"
+                styleClass="p-button-primary"></p-button>
+        </div>
+    </ng-template>
+</p-dialog>

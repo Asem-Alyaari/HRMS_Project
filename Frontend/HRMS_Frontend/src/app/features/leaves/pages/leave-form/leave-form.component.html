@@ -1,0 +1,51 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()" class="p-4 flex flex-col gap-6" dir="rtl">
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Employee Select -->
+        <div class="col-span-2">
+            <label class="block text-sm font-medium text-slate-700 dark:text-zinc-300 mb-2">الموظف</label>
+            <p-select [options]="employees()" formControlName="employeeId" optionLabel="fullNameAr"
+                optionValue="employeeId" placeholder="اختر الموظف" [filter]="true" filterBy="fullNameAr"
+                styleClass="w-full" appendTo="body">
+            </p-select>
+        </div>
+
+        <!-- Leave Type -->
+        <div class="col-span-1">
+            <label class="block text-sm font-medium text-slate-700 dark:text-zinc-300 mb-2">نوع الإجازة</label>
+            <p-select [options]="leaveTypes()" formControlName="leaveTypeId" optionLabel="leaveTypeNameAr"
+                optionValue="leaveTypeId" placeholder="اختر النوع" styleClass="w-full" appendTo="body">
+            </p-select>
+        </div>
+
+        <div class="col-span-1 hidden md:block"></div>
+
+        <!-- Start Date -->
+        <div class="col-span-1">
+            <label class="block text-sm font-medium text-slate-700 dark:text-zinc-300 mb-2">من تاريخ</label>
+            <p-datepicker formControlName="startDate" [showIcon]="true" appendTo="body" styleClass="w-full"
+                dateFormat="dd/mm/yy"></p-datepicker>
+        </div>
+
+        <!-- End Date -->
+        <div class="col-span-1">
+            <label class="block text-sm font-medium text-slate-700 dark:text-zinc-300 mb-2">إلى تاريخ</label>
+            <p-datepicker formControlName="endDate" [showIcon]="true" appendTo="body" styleClass="w-full"
+                dateFormat="dd/mm/yy"></p-datepicker>
+        </div>
+
+        <!-- Reason -->
+        <div class="col-span-2">
+            <label class="block text-sm font-medium text-slate-700 dark:text-zinc-300 mb-2">السبب / ملاحظات</label>
+            <textarea pTextarea formControlName="reason" rows="3" class="w-full rounded-xl"
+                placeholder="اكتب تفاصيل الطلب هنا..."></textarea>
+        </div>
+    </div>
+
+    <div class="flex justify-end gap-2 mt-4">
+        <p-button label="إلغاء" icon="pi pi-times" (onClick)="onCancel()"
+            styleClass="p-button-text p-button-secondary"></p-button>
+        <p-button label="إرسال الطلب" icon="pi pi-send" type="submit" [loading]="loading" [disabled]="form.invalid"
+            styleClass="p-button-primary p-button-rounded px-6"></p-button>
+    </div>
+</form>

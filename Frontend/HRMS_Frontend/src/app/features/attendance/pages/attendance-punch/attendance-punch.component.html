@@ -1,0 +1,61 @@
+<div class="min-h-[80vh] flex items-center justify-center p-6 bg-slate-50/50 dark:bg-zinc-950/50" dir="rtl">
+    <p-toast></p-toast>
+
+    <div
+        class="max-w-md w-full bg-white dark:bg-zinc-900 rounded-[3rem] shadow-2xl shadow-blue-500/10 border border-slate-100 dark:border-zinc-800 p-10 relative overflow-hidden">
+        <!-- Abstract Background Shapes -->
+        <div
+            class="absolute -top-24 -right-24 w-64 h-64 bg-blue-50 dark:bg-blue-900/10 rounded-full blur-3xl opacity-50">
+        </div>
+        <div
+            class="absolute -bottom-24 -left-24 w-64 h-64 bg-emerald-50 dark:bg-emerald-900/10 rounded-full blur-3xl opacity-50">
+        </div>
+
+        <div class="relative z-10 flex flex-col items-center">
+            <!-- Header -->
+            <div
+                class="bg-blue-50 dark:bg-blue-900/20 w-20 h-20 rounded-3xl flex items-center justify-center mb-6 shadow-inner">
+                <i class="pi pi-clock text-4xl text-blue-600 dark:text-blue-400"></i>
+            </div>
+
+            <h1 class="text-3xl font-black text-slate-800 dark:text-white mb-2">تسجيل البصمة</h1>
+            <p class="text-slate-500 dark:text-zinc-400 font-medium mb-10">يرجى تسجيل وقت الحضور أو الانصراف</p>
+
+            <!-- Digital Clock Display -->
+            <div
+                class="bg-slate-50 dark:bg-zinc-950/50 px-8 py-6 rounded-[2rem] border border-slate-100 dark:border-zinc-800 mb-12 flex flex-col items-center w-full">
+                <span class="text-5xl font-mono font-black tracking-widest text-slate-800 dark:text-white tabular-nums">
+                    {{ currentTime() | date:'HH:mm:ss' }}
+                </span>
+                <span class="text-sm font-bold text-blue-600 dark:text-blue-400 mt-2">
+                    {{ currentTime() | date:'EEEE, d MMMM y' : '' : 'ar-SA' }}
+                </span>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="grid grid-cols-2 gap-4 w-full">
+                <button (click)="registerPunch('IN')" [disabled]="loading()"
+                    class="group relative overflow-hidden bg-emerald-500 hover:bg-emerald-600 text-white py-6 rounded-3xl transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-emerald-500/30 disabled:opacity-50">
+                    <div class="flex flex-col items-center relative z-10">
+                        <i class="pi pi-sign-in text-2xl mb-2 transition-transform group-hover:-translate-y-1"></i>
+                        <span class="font-black text-lg">تسجيل حضور</span>
+                    </div>
+                </button>
+
+                <button (click)="registerPunch('OUT')" [disabled]="loading()"
+                    class="group relative overflow-hidden bg-red-500 hover:bg-red-600 text-white py-6 rounded-3xl transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-red-500/30 disabled:opacity-50">
+                    <div class="flex flex-col items-center relative z-10">
+                        <i class="pi pi-sign-out text-2xl mb-2 transition-transform group-hover:translate-y-1"></i>
+                        <span class="font-black text-lg">تسجيل انصراف</span>
+                    </div>
+                </button>
+            </div>
+
+            <!-- Footer Note -->
+            <div class="mt-12 flex items-center gap-2 text-slate-400 dark:text-zinc-500 text-xs font-medium">
+                <i class="pi pi-shield"></i>
+                <span>يتم تسجيل الموقع الجغرافي والجهاز آلياً عند البصمة</span>
+            </div>
+        </div>
+    </div>
+</div>

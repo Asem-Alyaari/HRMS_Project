@@ -1,0 +1,81 @@
+<div class="card p-6 bg-white dark:bg-zinc-900 rounded-3xl shadow-sm border border-slate-100 dark:border-zinc-800"
+    dir="rtl">
+    <p-toast></p-toast>
+    <p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
+
+    <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+        <div>
+            <h1 class="text-xl font-bold text-slate-800 dark:text-zinc-100">مؤشرات قياس الأداء (KPIs)</h1>
+            <p class="text-slate-500 dark:text-zinc-400 text-xs mt-1">تعريف المؤشرات والوزن النسبي لكل منها في التقييم
+            </p>
+        </div>
+        <p-button label="مؤشر جديد" icon="pi pi-plus" (onClick)="openNew()"
+            styleClass="p-button-primary p-button-rounded"></p-button>
+    </div>
+
+    <p-table [value]="kpis()" [rows]="10" [paginator]="true" [loading]="loading()"
+        styleClass="p-datatable-sm p-datatable-gridlines" [rowHover]="true">
+
+        <ng-template pTemplate="header">
+            <tr class="bg-slate-50 dark:bg-zinc-950 text-slate-700 dark:text-zinc-300 text-sm">
+                <th class="w-20">ID</th>
+                <th>اسم المؤشر</th>
+                <th class="text-center">الفئة</th>
+                <th class="text-center">الوزن (%)</th>
+                <th class="w-32">العمليات</th>
+            </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-item>
+            <tr class="transition-colors hover:bg-slate-50 dark:hover:bg-zinc-800/50">
+                <td>{{item.kpiId}}</td>
+                <td class="font-medium">{{item.kpiNameAr}}</td>
+                <td class="text-center">
+                    <span class="px-2 py-0.5 rounded-lg bg-slate-100 text-slate-600 text-[10px] font-bold uppercase">
+                        {{item.category}}
+                    </span>
+                </td>
+                <td class="text-center font-bold text-blue-600">{{item.weight}}%</td>
+                <td>
+                    <div class="flex gap-2 justify-center">
+                        <p-button icon="pi pi-pencil" (onClick)="editKpi(item)"
+                            styleClass="p-button-text p-button-sm p-button-info"></p-button>
+                        <p-button icon="pi pi-trash" (onClick)="deleteKpi(item.kpiId)"
+                            styleClass="p-button-text p-button-sm p-button-danger"></p-button>
+                    </div>
+                </td>
+            </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+            <tr>
+                <td colspan="5" class="text-center py-8 text-slate-400">لا توجد مؤشرات معرفة بعد</td>
+            </tr>
+        </ng-template>
+    </p-table>
+</div>
+
+<p-dialog [(visible)]="displayDialog" [style]="{width: '450px'}"
+    [header]="newKpi.kpiId ? 'تعديل مؤشر أداء' : 'إضافة مؤشر أداء جديد'" [modal]="true" class="p-fluid">
+    <ng-template pTemplate="content">
+        <div class="field mb-4">
+            <label class="block text-sm font-medium mb-1">اسم المؤشر (عربي)</label>
+            <input type="text" pInputText [(ngModel)]="newKpi.kpiNameAr" class="w-full" />
+            <small class="p-error block" *ngIf="submitted() && !newKpi.kpiNameAr">الاسم مطلوب</small>
+        </div>
+        <div class="field mb-4">
+            <label class="block text-sm font-medium mb-1">الفئة</label>
+            <p-select [options]="categories" [(ngModel)]="newKpi.category" class="w-full" optionLabel="label"
+                optionValue="value"></p-select>
+        </div>
+        <div class="field mb-4">
+            <label class="block text-sm font-medium mb-1">الوزن النسبي (%)</label>
+            <p-inputnumber [(ngModel)]="newKpi.weight" [min]="1" [max]="100" class="w-full" suffix="%"></p-inputnumber>
+        </div>
+    </ng-template>
+    <ng-template pTemplate="footer">
+        <p-button label="إلغاء" icon="pi pi-times" (onClick)="displayDialog.set(false)"
+            styleClass="p-button-text"></p-button>
+        <p-button label="حفظ" icon="pi pi-check" (onClick)="save()" styleClass="p-button-primary"></p-button>
+    </ng-template>
+</p-dialog>
